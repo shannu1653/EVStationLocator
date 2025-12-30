@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .serializers import (
-    RegisterSerializer,
+    # RegisterSerializer,
     UserSerializer,
     UserProfileSerializer
 )
@@ -18,13 +18,66 @@ from .models import UserProfile
 # -----------------------
 # Register User
 # -----------------------
-@api_view(["POST"])
+# @api_view(["POST"])
+# def register_user(request):
+#     serializer = RegisterSerializer(data=request.data)
+#     if serializer.is_valid():
+#         serializer.save()
+#         return Response({"message": "User registered successfully"})
+#     return Response(serializer.errors, status=400)
+
+import json
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.models import User
+
+@csrf_exempt
 def register_user(request):
-    serializer = RegisterSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response({"message": "User registered successfully"})
-    return Response(serializer.errors, status=400)
+
+    # ✅ Handle preflight OPTIONS request
+    if request.method == "OPTIONS":
+        response = HttpResponse()
+        response["Access-Control-Allow-Origin"] = "*"
+        response["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+        response["Access-Control-Allow-Headers"] = "Content-Type"
+        return response
+
+    # ✅ Handle POST request
+    if request.method == "POST":
+        data = json.loads(request.body)
+
+        username = data.get("username")
+        email = data.get("email")
+        password = data.get("password")
+
+        if not username or not password:
+            return JsonResponse({
+                "status": "error",
+                "message": "Username and password required"
+            }, status=400)
+
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({
+                "status": "error",
+                "message": "User already exists"
+            }, status=409)
+
+        User.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
+
+        return JsonResponse({
+            "status": "success",
+            "message": "User registered successfully"
+        }, status=201)
+
+    # ✅ SAFETY NET (VERY IMPORTANT)
+    return JsonResponse(
+        {"status": "error", "message": "Method not allowed"},
+        status=405
+    )
 
 
 # -----------------------
