@@ -804,10 +804,10 @@
               <label for="userVehicle">Vehicle model</label>
               <input type="text" id="userVehicle" placeholder="e.g. Nexon EV" required />
             </div>
-            <div class="form-row">
+            <!-- <div class="form-row">
               <label for="bookingStation">Select station</label>
               <select id="bookingStation" required></select>
-            </div>
+            </div> -->
             <div class="form-row">
               <label for="bookingConnector">Connector type</label>
               <select id="bookingConnector" required>
@@ -1106,465 +1106,188 @@
 
   <button id="backToTop" type="button">↑ Top</button>
 
+  
   <!-- JAVASCRIPT -->
   <script>
-    // DATASET OF STATIONS
-    const stations = [
-      {
-        id: 1,
-        name: "Skyline SuperCharge",
-        area: "Financial District, Hyderabad",
-        connector: "CCS2",
-        speed: "Fast",
-        openNow: true,
-        slotsTotal: 6,
-        slotsBooked: 3,
-        approxRate: 12,
-        image: "https://images.pexels.com/photos/1308318/pexels-photo-1308318.jpeg"
-      },
-      {
-        id: 2,
-        name: "Highway GreenHub",
-        area: "ORR Exit 11",
-        connector: "CHAdeMO",
-        speed: "Fast",
-        openNow: false,
-        slotsTotal: 8,
-        slotsBooked: 7,
-        approxRate: 11,
-        image: "https://images.pexels.com/photos/110844/pexels-photo-110844.jpeg"
-      },
-      {
-        id: 3,
-        name: "MetroMall Deck",
-        area: "Inorbit Mall, Hyderabad",
-        connector: "Type 2",
-        speed: "Normal",
-        openNow: true,
-        slotsTotal: 10,
-        slotsBooked: 4,
-        approxRate: 9.5,
-        image: "https://images.pexels.com/photos/9799993/pexels-photo-9799993.jpeg"
-      }
-    ];
+// ======================================
+// SUPER EASY DJANGO CONNECTION (BEGINNER)
+// ======================================
 
-    const bookings = [];
-    const reviews = [
-      { name: "Aarav", rating: 5, text: "Booking a slot for my Kona EV was simple and I got a free charger quickly." },
-      { name: "Riya", rating: 4, text: "Good interface for beginners. I like the clear station details before booking." },
-      { name: "Kiran", rating: 5, text: "For our small fleet, advance booking reduces morning chaos at chargers." }
-    ];
+const API_URL = 'http://127.0.0.1:8000/api/';
 
-    // NAV TOGGLE
-    const navToggle = document.getElementById("navToggle");
-    const navLinks = document.getElementById("navLinks");
+// ⭐ 1. SIMPLE API CALL FUNCTION (COPY THIS)
+function apiCall(url, method='GET', data=null) {
+    return fetch(url, {
+        method: method,
+        headers: {'Content-Type': 'application/json'},
+        body: data ? JSON.stringify(data) : null
+    })
+    .then(res => res.json())
+    .catch(err => ({success: false, message: 'Server error'}));
+}
 
-    navToggle.addEventListener("click", function () {
-      navLinks.classList.toggle("open");
+// ⭐ 2. LOAD STATIONS FROM DB
+function loadStations() {
+    apiCall(API_URL + 'stations/')
+    .then(data => {
+        if (data.stations) renderStations(data.stations);
     });
+}
 
-    // ACTIVE NAV ON SCROLL
-    const sections = document.querySelectorAll("section");
-    const navLinkElements = document.querySelectorAll(".nav-link");
-
-    window.addEventListener("scroll", function () {
-      let currentId = "";
-      sections.forEach(function (sec) {
-        const rect = sec.getBoundingClientRect();
-        const offset = rect.top + window.scrollY - 90;
-        if (window.scrollY >= offset && window.scrollY < offset + sec.offsetHeight) {
-          currentId = sec.id;
-        }
-      });
-      navLinkElements.forEach(function (link) {
-        link.classList.remove("active");
-        if (link.getAttribute("href") === "#" + currentId) {
-          link.classList.add("active");
-        }
-      });
+// ⭐ 3. RENDER STATIONS (YOUR SAME CODE)
+function renderStations(stations) {
+    const cards = document.getElementById('stationCards');
+    const select = document.getElementById('bookingStation');
+    cards.innerHTML = ''; select.innerHTML = '';
+    
+    stations.forEach(s => {
+        const free = s.slots_total - s.slots_booked;
+        cards.innerHTML += `
+            <div class="card">
+                <img src="${s.image_url || 'https://images.pexels.com/photos/7994432/pexels-photo-7994432.jpeg'}" alt="${s.name}">
+                <div class="card-body">
+                    <div class="card-title-row">
+                        <h4>${s.name}</h4>
+                        <span class="status-dot ${s.open_now ? 'status-online' : 'status-busy'}"></span>
+                    </div>
+                    <p class="small-text">${s.area}</p>
+                    <div class="card-tags">
+                        <span class="tag-pill">${s.connector}</span>
+                        <span class="tag-pill">${s.speed}</span>
+                        <span class="tag-pill">${s.slots_total} slots</span>
+                        <span class="tag-pill">₹${s.approx_rate}</span>
+                    </div>
+                    <div class="card-foot">
+                        <span>${free} free</span>
+                        <span>${s.open_now ? 'Open' : 'Closed'}</span>
+                    </div>
+                </div>
+            </div>`;
+        
+        select.innerHTML += `<option value="${s.id}">${s.name} (${s.area})</option>`;
     });
+}
 
-    // RENDER STATIONS
-    const stationCards = document.getElementById("stationCards");
-    const bookingStationSelect = document.getElementById("bookingStation");
-
-    function renderStations() {
-      stationCards.innerHTML = "";
-      bookingStationSelect.innerHTML = "";
-      stations.forEach(function (s) {
-        const freeSlots = s.slotsTotal - s.slotsBooked;
-        const card = document.createElement("div");
-        card.className = "card";
-        card.innerHTML = `
-          <img src="${s.image}" alt="${s.name}">
-          <div class="card-body">
-            <div class="card-title-row">
-              <h4 style="font-size:1rem;">${s.name}</h4>
-              <span class="status-dot ${s.openNow ? "status-online" : "status-busy"}"></span>
-            </div>
-            <p class="small-text">${s.area}</p>
-            <div class="card-tags">
-              <span class="tag-pill">${s.connector}</span>
-              <span class="tag-pill">${s.speed}</span>
-              <span class="tag-pill">${s.slotsTotal} slots</span>
-              <span class="tag-pill">₹${s.approxRate}/kWh</span>
-            </div>
-            <div class="card-foot">
-              <span class="small-text">${freeSlots} free slot(s)</span>
-              <span class="small-text">${s.openNow ? "Open now" : "Closes soon"}</span>
-            </div>
-          </div>
-        `;
-        stationCards.appendChild(card);
-
-        const opt = document.createElement("option");
-        opt.value = s.id;
-        opt.textContent = s.name + " (" + s.area + ")";
-        bookingStationSelect.appendChild(opt);
-      });
-    }
-    renderStations();
-
-    // LOCATOR FILTER
-    const locatorBtn = document.getElementById("locatorBtn");
-    const locatorResult = document.getElementById("locatorResult");
-
-    locatorBtn.addEventListener("click", function () {
-      const areaInput = document.getElementById("searchArea").value.toLowerCase();
-      const connectorFilter = document.getElementById("connectorFilter").value;
-      const speedFilter = document.getElementById("speedFilter").value;
-      const openNowFilter = document.getElementById("openNowFilter").checked;
-
-      const filtered = stations.filter(function (s) {
-        const matchesArea =
-          areaInput === "" || s.area.toLowerCase().includes(areaInput) || s.name.toLowerCase().includes(areaInput);
-        const matchesConnector = connectorFilter === "any" || s.connector === connectorFilter;
-        const matchesSpeed = speedFilter === "any" || s.speed === speedFilter;
-        const matchesOpen = !openNowFilter || s.openNow;
-        return matchesArea && matchesConnector && matchesSpeed && matchesOpen;
-      });
-
-      if (filtered.length === 0) {
-        locatorResult.textContent = "No station found with selected filters. Try changing the search.";
-      } else {
-        const names = filtered.map(function (s) { return s.name; });
-        locatorResult.textContent =
-          "Found " + filtered.length + " station(s): " + names.join(", ") + ". (Map is static in this demo).";
-      }
+// ⭐ 4. SEARCH STATIONS
+document.getElementById('locatorBtn').onclick = function() {
+    const q = document.getElementById('searchArea').value;
+    const connector = document.getElementById('connectorFilter').value;
+    const speed = document.getElementById('speedFilter').value;
+    const open = document.getElementById('openNowFilter').checked;
+    
+    let url = API_URL + 'search-stations/?';
+    if (q) url += 'q=' + q + '&';
+    if (connector != 'any') url += 'connector=' + connector + '&';
+    if (speed != 'any') url += 'speed=' + speed + '&';
+    if (open) url += 'open_now=true';
+    
+    apiCall(url).then(data => {
+        document.getElementById('locatorResult').textContent = 
+            `Found ${data.stations?.length || 0} stations`;
     });
+};
 
-    // EXTRA MAPS SECTION: change iframe src by city
-    const cityButtons = document.querySelectorAll(".city-btn");
-    const multiMapFrame = document.getElementById("multiMapFrame");
-
-    const cityMapSrc = {
-      hitech:
-        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.504388542583!2d78.37247637509267!3d17.43801688345216!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb93e8df0856dd%3A0x48946aeb9d0dc034!2sHitec%20City%2C%20Hyderabad%2C%20Telangana!5e0!3m2!1sen!2sin!4v1700000000000",
-      banjara:
-        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.9498396652904!2d78.43772087509219!3d17.420159483462!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb96c15758e7c7%3A0x7b68b06e0f2d0ad2!2sBanjara%20Hills%2C%20Hyderabad%2C%20Telangana!5e0!3m2!1sen!2sin!4v1700000000001",
-      bangalore:
-        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.087722867568!2d77.72663997501407!3d12.969795187349251!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae122b9a1a2cf3%3A0x3e0a87140c88001!2sWhitefield%2C%20Bengaluru%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1700000000002",
-      mumbai:
-        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3770.843584565269!2d72.85321827505552!3d19.06643125212852!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c90af4a5dc2f%3A0x5e3d4f6fb9a2b805!2sBandra%20Kurla%20Complex%20(BKC)%2C%20Mumbai%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1700000000003"
+// ⭐ 5. BOOK SLOT
+document.getElementById('bookingForm').onsubmit = function(e) {
+    e.preventDefault();
+    
+    const data = {
+        user_name: document.getElementById('userName').value,
+        vehicle: document.getElementById('userVehicle').value,
+        // station_id: document.getElementById('bookingStation').value,
+        connector: document.getElementById('bookingConnector').value,
+        date: document.getElementById('bookingDate').value,
+        time: document.getElementById('bookingTime').value,
+        duration: document.getElementById('bookingDuration').value,
+        approx_amount: 150
     };
-
-    cityButtons.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        cityButtons.forEach(function (b) { b.classList.remove("active"); });
-        btn.classList.add("active");
-        const key = btn.getAttribute("data-map");
-        multiMapFrame.src = cityMapSrc[key];
-      });
+    
+    apiCall(API_URL + 'bookings/', 'POST', data).then(result => {
+        const status = document.getElementById('bookingStatus');
+        status.textContent = result.message;
+        status.style.color = result.success ? '#22c55e' : '#f97316';
     });
+};
 
-    // BOOKING FORM
-    const bookingForm = document.getElementById("bookingForm");
-    const bookingStatus = document.getElementById("bookingStatus");
-    const bookingSummary = document.getElementById("bookingSummary");
-    const bookingList = document.getElementById("bookingList");
-
-    bookingForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-
-      const name = document.getElementById("userName").value.trim();
-      const vehicle = document.getElementById("userVehicle").value.trim();
-      const stationId = parseInt(document.getElementById("bookingStation").value, 10);
-      const connector = document.getElementById("bookingConnector").value;
-      const date = document.getElementById("bookingDate").value;
-      const time = document.getElementById("bookingTime").value;
-      const duration = document.getElementById("bookingDuration").value;
-
-      if (!name || !vehicle || !date || !time) {
-        bookingStatus.textContent = "Please fill all fields.";
-        bookingStatus.style.color = "#f97316";
-        return;
-      }
-
-      const station = stations.find(function (s) { return s.id === stationId; });
-      if (!station) {
-        bookingStatus.textContent = "Station not found.";
-        bookingStatus.style.color = "#f97316";
-        return;
-      }
-
-      const existingCount = bookings.filter(function (b) {
-        return b.stationId === stationId && b.date === date && b.time === time;
-      }).length;
-
-      const freeSlots = station.slotsTotal - station.slotsBooked - existingCount;
-
-      if (freeSlots <= 0) {
-        bookingStatus.textContent = "Selected time is full. Please choose a different time or station.";
-        bookingStatus.style.color = "#f97316";
-        return;
-      }
-
-      const newBooking = {
-        user: name,
-        vehicle: vehicle,
-        stationId: stationId,
-        stationName: station.name,
-        connector: connector,
-        date: date,
-        time: time,
-        duration: duration,
-        approxAmount: (station.approxRate * duration * 15).toFixed(0) // fake cost
-      };
-      bookings.push(newBooking);
-
-      bookingStatus.textContent = "Slot booked successfully! You can now go to Payment section (demo).";
-      bookingStatus.style.color = "#22c55e";
-
-      bookingSummary.innerHTML =
-        "<strong>Booking summary:</strong>" +
-        "<p class='small-text' style='margin-top:6px;'>" +
-        "Name: " + name + "<br>" +
-        "Vehicle: " + vehicle + "<br>" +
-        "Station: " + station.name + "<br>" +
-        "Connector: " + connector + "<br>" +
-        "Date: " + date + " · Time: " + time + " · Duration: " + duration + " hour(s)<br>" +
-        "Estimated amount: ₹" + newBooking.approxAmount +
-        "</p>";
-
-      updatePaymentSummary(newBooking);
-      renderBookings();
-      bookingForm.reset();
+// ⭐ 6. LOAD BOOKINGS
+function loadBookings() {
+    apiCall(API_URL + 'my-bookings/').then(data => {
+        const list = document.getElementById('bookingList');
+        list.innerHTML = '';
+        data.bookings?.forEach(b => {
+            list.innerHTML += `
+                <div class="booking-item">
+                    ${b.station_id} - ${b.date} ${b.time} - ₹${b.approx_amount}
+                </div>`;
+        });
     });
+}
 
-    function renderBookings() {
-      if (bookings.length === 0) {
-        bookingList.innerHTML = "";
-        return;
-      }
-      let html = "<h4 style='font-size:1rem;margin-top:10px;'>Your bookings:</h4>";
-      bookings.forEach(function (b, index) {
-        html +=
-          "<div class='booking-item'>" +
-          (index + 1) +
-          ". " +
-          b.stationName +
-          " · " +
-          b.date +
-          " " +
-          b.time +
-          " · " +
-          b.duration +
-          "h · " +
-          b.connector +
-          " · ₹" +
-          b.approxAmount +
-          "</div>";
-      });
-      bookingList.innerHTML = html;
-    }
-
-    // PAYMENT SUMMARY + FORM
-    const paymentSummary = document.getElementById("paymentSummary");
-    const paymentForm = document.getElementById("paymentForm");
-    const paymentStatus = document.getElementById("paymentStatus");
-
-    function updatePaymentSummary(lastBooking) {
-      paymentSummary.innerHTML =
-        "<strong>Payment summary:</strong>" +
-        "<p class='small-text' style='margin-top:6px;'>" +
-        "Last booking: " +
-        lastBooking.stationName +
-        " · " +
-        lastBooking.date +
-        " " +
-        lastBooking.time +
-        "<br>Duration: " +
-        lastBooking.duration +
-        " hour(s) · Approx amount: ₹" +
-        lastBooking.approxAmount +
-        "<br>This payment form is only a demo. It does not charge real money." +
-        "</p>";
-    }
-
-    // Simple card formatting: add spaces every 4 digits
-    const payCardInput = document.getElementById("payCard");
-    payCardInput.addEventListener("input", function () {
-      let value = payCardInput.value.replace(/\D/g, "");
-      value = value.match(/.{1,4}/g)?.join(" ") || "";
-      payCardInput.value = value;
+// ⭐ 7. LOAD REVIEWS
+function loadReviews() {
+    apiCall(API_URL + 'get-reviews/').then(data => {
+        const list = document.getElementById('reviewList');
+        list.innerHTML = '';
+        data.reviews?.forEach(r => {
+            const stars = '★'.repeat(r.rating) + '☆'.repeat(5-r.rating);
+            list.innerHTML += `
+                <div class="review-item">
+                    <div class="review-stars">${stars}</div>
+                    <strong>${r.name}</strong>
+                    <p class="small-text">${r.text}</p>
+                </div>`;
+        });
     });
+}
 
-    // Simple expiry formatting: MM/YY
-    const payExpiryInput = document.getElementById("payExpiry");
-    payExpiryInput.addEventListener("input", function () {
-      let value = payExpiryInput.value.replace(/\D/g, "");
-      if (value.length >= 3) {
-        value = value.slice(0, 2) + "/" + value.slice(2, 4);
-      }
-      payExpiryInput.value = value;
+// ⭐ 8. ADD REVIEW
+document.getElementById('reviewForm').onsubmit = function(e) {
+    e.preventDefault();
+    const data = {
+        name: document.getElementById('reviewName').value,
+        rating: document.getElementById('reviewRating').value,
+        text: document.getElementById('reviewText').value
+    };
+    apiCall(API_URL + 'reviews/', 'POST', data).then(result => {
+        document.getElementById('reviewStatus').textContent = result.message;
+        loadReviews();
+        this.reset();
     });
+};
 
-    paymentForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const name = document.getElementById("payName").value.trim();
-      const card = document.getElementById("payCard").value.replace(/\s/g, "");
-      const expiry = document.getElementById("payExpiry").value.trim();
-      const cvv = document.getElementById("payCvv").value.trim();
-      const email = document.getElementById("payEmail").value.trim();
-
-      if (!name || !card || !expiry || !cvv || !email) {
-        paymentStatus.textContent = "Please fill all payment fields.";
-        paymentStatus.style.color = "#f97316";
-        return;
-      }
-      if (card.length < 12) {
-        paymentStatus.textContent = "Card number looks too short.";
-        paymentStatus.style.color = "#f97316";
-        return;
-      }
-      if (!expiry.includes("/")) {
-        paymentStatus.textContent = "Expiry format should be MM/YY.";
-        paymentStatus.style.color = "#f97316";
-        return;
-      }
-      if (cvv.length < 3) {
-        paymentStatus.textContent = "CVV should be 3 or 4 digits.";
-        paymentStatus.style.color = "#f97316";
-        return;
-      }
-
-      paymentStatus.textContent =
-        "Payment simulated successfully! (Demo only, no real charge). Receipt sent to " + email + ".";
-      paymentStatus.style.color = "#22c55e";
-      paymentForm.reset();
+// ⭐ 9. CONTACT FORM
+document.getElementById('contactForm').onsubmit = function(e) {
+    e.preventDefault();
+    const data = {
+        name: document.getElementById('contactName').value,
+        email: document.getElementById('contactEmail').value,
+        message: document.getElementById('contactMessage').value
+    };
+    apiCall(API_URL + 'contact/', 'POST', data).then(result => {
+        document.getElementById('contactResult').textContent = result.message;
     });
+};
 
-    // CUSTOMER REVIEWS
-    const reviewList = document.getElementById("reviewList");
-    const reviewForm = document.getElementById("reviewForm");
-    const reviewStatus = document.getElementById("reviewStatus");
-
-    function renderReviews() {
-      if (reviews.length === 0) {
-        reviewList.innerHTML = "<p class='small-text'>No reviews yet. Be the first to add one.</p>";
-        return;
-      }
-      reviewList.innerHTML = "";
-      reviews.forEach(function (r) {
-        const item = document.createElement("div");
-        item.className = "review-item";
-        const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
-        item.innerHTML =
-          "<div class='review-stars'>" + stars + "</div>" +
-          "<strong style='font-size:0.9rem;'>" + r.name + "</strong>" +
-          "<p class='small-text'>" + r.text + "</p>";
-        reviewList.appendChild(item);
-      });
-    }
-    renderReviews();
-
-    reviewForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const name = document.getElementById("reviewName").value.trim();
-      const rating = parseInt(document.getElementById("reviewRating").value, 10);
-      const text = document.getElementById("reviewText").value.trim();
-
-      if (!name || !text) {
-        reviewStatus.textContent = "Please fill your name and review.";
-        reviewStatus.style.color = "#f97316";
-        return;
-      }
-
-      reviews.unshift({ name: name, rating: rating, text: text });
-      renderReviews();
-      reviewStatus.textContent = "Thank you for your review!";
-      reviewStatus.style.color = "#22c55e";
-      reviewForm.reset();
+// ⭐ 10. NEWSLETTER
+document.getElementById('newsletterForm').onsubmit = function(e) {
+    e.preventDefault();
+    const data = {email: document.getElementById('newsletterEmail').value};
+    apiCall(API_URL + 'newsletter/', 'POST', data).then(result => {
+        document.getElementById('newsletterResult').textContent = result.message;
     });
+};
 
-    // CAROUSEL
-    const slides = document.querySelectorAll(".carousel-slide");
-    const prevSlideBtn = document.getElementById("prevSlide");
-    const nextSlideBtn = document.getElementById("nextSlide");
-    let currentSlide = 0;
-
-    function showSlide(index) {
-      slides.forEach(function (slide, i) {
-        slide.classList.remove("active");
-        if (i === index) slide.classList.add("active");
-      });
-    }
-
-    prevSlideBtn.addEventListener("click", function () {
-      currentSlide--;
-      if (currentSlide < 0) currentSlide = slides.length - 1;
-      showSlide(currentSlide);
-    });
-
-    nextSlideBtn.addEventListener("click", function () {
-      currentSlide++;
-      if (currentSlide >= slides.length) currentSlide = 0;
-      showSlide(currentSlide);
-    });
-
-    setInterval(function () {
-      currentSlide++;
-      if (currentSlide >= slides.length) currentSlide = 0;
-      showSlide(currentSlide);
-    }, 5000);
-
-    // CONTACT FORM
-    const contactForm = document.getElementById("contactForm");
-    const contactResult = document.getElementById("contactResult");
-
-    contactForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      contactResult.textContent = "Thank you for contacting VoltSlot. We will reply soon.";
-      contactResult.style.color = "#22c55e";
-      contactForm.reset();
-    });
-
-    // NEWSLETTER
-    const newsletterForm = document.getElementById("newsletterForm");
-    const newsletterResult = document.getElementById("newsletterResult");
-
-    newsletterForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      newsletterResult.textContent = "You are subscribed to VoltSlot updates.";
-      newsletterResult.style.color = "#22c55e";
-      newsletterForm.reset();
-    });
-
-    // FOOTER YEAR
-    document.getElementById("yearSpan").textContent = new Date().getFullYear();
-
-    // BACK TO TOP
-    const backToTopBtn = document.getElementById("backToTop");
-    window.addEventListener("scroll", function () {
-      if (window.scrollY > 300) {
-        backToTopBtn.style.display = "block";
-      } else {
-        backToTopBtn.style.display = "none";
-      }
-    });
-    backToTopBtn.addEventListener("click", function () {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-  </script>
+// ⭐ 11. START EVERYTHING
+window.onload = function() {
+    loadStations();
+    loadReviews();
+    loadBookings();
+    
+    // Navbar toggle (your old code)
+    document.getElementById('navToggle').onclick = () => {
+        document.getElementById('navLinks').classList.toggle('open');
+    };
+};
+</script>
 </body>
 </html>

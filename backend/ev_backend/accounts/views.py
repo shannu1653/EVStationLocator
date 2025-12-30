@@ -14,7 +14,10 @@ from .serializers import (
 )
 from .models import UserProfile
 
-
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from .models import ChargingStation, Booking, Review, ContactMessage
 # -----------------------
 # Register User
 # -----------------------
@@ -172,3 +175,65 @@ def update_profile(request):
         return Response({"message": "Profile updated successfully"})
 
     return Response(serializer.errors, status=400)
+
+
+
+#adding new*****************************
+
+
+
+@csrf_exempt
+def stations(request):
+    if request.method == 'GET':
+        stations = list(ChargingStation.objects.values())
+        return JsonResponse({'stations': stations})
+
+@csrf_exempt  
+def search_stations(request):
+    if request.method == 'GET':
+        query = request.GET.get('q', '')
+        stations = ChargingStation.objects.filter(name__icontains=query) | \
+                   ChargingStation.objects.filter(area__icontains=query)
+        data = list(stations.values())
+        return JsonResponse({'stations': data})
+
+@csrf_exempt
+def create_booking(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        try:
+            booking = Booking.objects.create(**data)
+            return JsonResponse({'success': True, 'message': 'Booking created!'})
+        except:
+            return JsonResponse({'success': False, 'message': 'Booking failed'})
+
+@csrf_exempt
+def get_bookings(request):
+    if request.method == 'GET':
+        bookings = list(Booking.objects.values())
+        return JsonResponse({'bookings': bookings})
+
+@csrf_exempt
+def create_review(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        review = Review.objects.create(**data)
+        return JsonResponse({'success': True, 'message': 'Review added!'})
+
+@csrf_exempt
+def get_reviews(request):
+    if request.method == 'GET':
+        reviews = list(Review.objects.values())
+        return JsonResponse({'reviews': reviews})
+
+@csrf_exempt
+def contact_submit(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        ContactMessage.objects.create(**data)
+        return JsonResponse({'success': True, 'message': 'Message sent!'})
+
+@csrf_exempt
+def newsletter_subscribe(request):
+    if request.method == 'POST':
+        return JsonResponse({'success': True, 'message': 'Subscribed!'})
