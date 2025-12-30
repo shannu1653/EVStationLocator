@@ -83,20 +83,69 @@ def register_user(request):
 # -----------------------
 # Login (JWT)
 # -----------------------
-@api_view(["POST"])
+# @api_view(["POST"])
+# def login_user(request):
+#     username = request.data.get("username")
+#     password = request.data.get("password")
+
+#     user = authenticate(username=username, password=password)
+#     if user:
+#         refresh = RefreshToken.for_user(user)
+#         return Response({
+#             "access": str(refresh.access_token),
+#             "refresh": str(refresh)
+#         })
+
+#     return Response({"error": "Invalid username or password"}, status=401)
+import json
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
+
+@csrf_exempt
 def login_user(request):
-    username = request.data.get("username")
-    password = request.data.get("password")
 
-    user = authenticate(username=username, password=password)
-    if user:
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            "access": str(refresh.access_token),
-            "refresh": str(refresh)
-        })
+    # ✅ Handle CORS preflight
+    if request.method == "OPTIONS":
+        response = HttpResponse()
+        response["Access-Control-Allow-Origin"] = "*"
+        response["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+        response["Access-Control-Allow-Headers"] = "Content-Type"
+        return response
 
-    return Response({"error": "Invalid username or password"}, status=401)
+    if request.method == "POST":
+        data = json.loads(request.body)
+
+        username = data.get("username")
+        password = data.get("password")
+
+        if not username or not password:
+            return JsonResponse({
+                "status": "error",
+                "message": "Username and password required"
+            }, status=400)
+
+        # ✅ MATCHING WITH REGISTERED USER (DATABASE)
+        user = authenticate(username=username, password=password)
+
+        if user is None:
+            return JsonResponse({
+                "status": "error",
+                "message": "Invalid username or password"
+            }, status=401)
+
+        # ✅ LOGIN SUCCESS
+        return JsonResponse({
+            "status": "success",
+            "message": "Login successful",
+            "username": user.username
+        }, status=200)
+
+    return JsonResponse({
+        "status": "error",
+        "message": "Method not allowed"
+    }, status=405)
 
 
 # -----------------------

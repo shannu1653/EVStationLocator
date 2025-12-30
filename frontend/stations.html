@@ -1,14 +1,1570 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Stations</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoltSlot – EV Charging Slot Booking</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Poppins", Arial, sans-serif;
+      background-color: #020617;
+      color: #e5e7eb;
+      line-height: 1.5;
+      scroll-behavior: smooth;
+    }
+
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+
+    .container { width: 90%; max-width: 1100px; margin: 0 auto; }
+    section { padding: 60px 0; }
+
+    h1, h2, h3, h4 { font-weight: 600; }
+    p { font-size: 0.95rem; }
+    .small-text { font-size: 0.8rem; color: #9ca3af; }
+
+    /* HEADER / NAVBAR */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: rgba(15, 23, 42, 0.96);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.4);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+    }
+
+    .logo { font-size: 1.3rem; font-weight: 600; }
+    .logo span { color: #22c55e; }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 14px;
+      font-size: 0.9rem;
+    }
+
+    nav a {
+      padding: 6px 10px;
+      border-radius: 999px;
+      transition: background 0.2s;
+    }
+
+    nav a.active { background: #22c55e; color: #020617; }
+    nav a:hover { background: rgba(31, 41, 55, 0.9); }
+
+    .nav-buttons { display: flex; gap: 8px; }
+
+    .btn {
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 0.85rem;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: transparent;
+      color: #e5e7eb;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+
+    .btn-primary {
+      background: #22c55e;
+      border-color: #22c55e;
+      color: #020617;
+    }
+    .btn-primary:hover { background: #16a34a; }
+
+    .btn-outline:hover {
+      background: rgba(15, 23, 42, 0.9);
+      border-color: #e5e7eb;
+    }
+
+    .nav-toggle { display: none; font-size: 1.3rem; cursor: pointer; }
+
+    @media (max-width: 768px) {
+      nav ul {
+        position: absolute;
+        top: 50px;
+        right: 0;
+        background: rgba(15, 23, 42, 0.98);
+        flex-direction: column;
+        width: 190px;
+        padding: 10px;
+        display: none;
+      }
+      nav ul.open { display: flex; }
+      .nav-buttons { display: none; }
+      .nav-toggle { display: block; }
+    }
+
+    /* HERO */
+    #home {
+      min-height: 100vh;
+      padding-top: 80px;
+      display: flex;
+      align-items: center;
+      background: radial-gradient(circle at top, #0f172a, #020617 55%);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 40px;
+      align-items: center;
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; }
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      font-size: 0.75rem;
+      margin-bottom: 8px;
+    }
+
+    .tag-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.9);
+    }
+
+    .hero-title { font-size: 2.4rem; margin-bottom: 10px; }
+
+    .hero-highlight {
+      background: linear-gradient(to right, #22c55e, #38bdf8, #a855f7);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero-text {
+      font-size: 0.95rem;
+      max-width: 460px;
+      margin-bottom: 16px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .hero-metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      font-size: 0.85rem;
+    }
+
+    .hero-metrics h4 { font-size: 1.2rem; }
+
+    .hero-image-box {
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      position: relative;
+    }
+
+    .hero-image-box img {
+      height: 320px;
+      width: 100%;
+      object-fit: cover;
+    }
+
+    .hero-label {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(15, 23, 42, 0.92);
+      padding: 6px 8px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+    }
+
+    /* SECTION HEADER */
+    .section-header { margin-bottom: 20px; }
+    .section-header h2 { font-size: 1.6rem; margin-bottom: 4px; }
+    .section-header p { font-size: 0.9rem; color: #9ca3af; }
+
+    /* STATION CARDS */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, #0f172a, #020617);
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.9);
+      border-color: #22c55e;
+    }
+
+    .card img {
+      height: 150px;
+      width: 100%;
+      object-fit: cover;
+    }
+
+    .card-body { padding: 10px 12px; font-size: 0.9rem; }
+
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .status-online {
+      background: #22c55e;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.9);
+    }
+    .status-busy {
+      background: #eab308;
+      box-shadow: 0 0 8px rgba(234, 179, 8, 0.9);
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 8px 0;
+    }
+
+    .tag-pill {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      padding: 2px 8px;
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+
+    .card-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    /* SLOT BOOKING */
+    .booking-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.6fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .booking-grid { grid-template-columns: 1fr; }
+    }
+
+    .booking-panel {
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 14px 16px;
+      font-size: 0.85rem;
+    }
+
+    .form-row { margin-bottom: 10px; }
+
+    label {
+      font-size: 0.8rem;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="date"],
+    input[type="time"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.85rem;
+    }
+
+    textarea { resize: vertical; min-height: 80px; }
+
+    .booking-summary {
+      background: radial-gradient(circle at top left, #0f172a, #020617);
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      min-height: 100px;
+    }
+
+    .booking-list { margin-top: 10px; font-size: 0.8rem; }
+    .booking-item {
+      border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+      padding: 4px 0;
+    }
+
+    /* LOCATOR + MAP */
+    .locator-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr);
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 900px) {
+      .locator-grid { grid-template-columns: 1fr; }
+    }
+
+    .locator-panel {
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 14px 16px;
+      font-size: 0.85rem;
+    }
+
+    .form-check-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      margin-bottom: 10px;
+    }
+
+    .map-box {
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      overflow: hidden;
+    }
+
+    .map-box iframe {
+      width: 100%;
+      height: 320px;
+      border: 0;
+    }
+
+    /* EXTRA MAPS SECTION */
+    .city-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .city-btn {
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: #020617;
+      color: #e5e7eb;
+      cursor: pointer;
+    }
+    .city-btn.active {
+      background: #22c55e;
+      color: #020617;
+      border-color: #22c55e;
+    }
+
+    /* CAROUSEL */
+    .carousel {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    .carousel-slide { display: none; }
+    .carousel-slide.active { display: block; }
+
+    .carousel-caption {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      padding: 6px 8px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+    }
+
+    .carousel-controls {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      transform: translateY(-50%);
+      padding: 0 8px;
+    }
+
+    .carousel-btn {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      color: #e5e7eb;
+      border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    /* GALLERY GRID */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+    }
+
+    .gallery-item {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+    }
+
+    .gallery-item img {
+      height: 140px;
+      width: 100%;
+      object-fit: cover;
+    }
+
+    /* STORIES */
+    .test-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .test-card {
+      background: radial-gradient(circle at top left, #0f172a, #020617);
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      padding: 12px 14px;
+      font-size: 0.85rem;
+    }
+
+    .test-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+      font-size: 0.8rem;
+    }
+
+    /* REVIEWS */
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.5fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .reviews-grid { grid-template-columns: 1fr; }
+    }
+
+    .review-list {
+      background: radial-gradient(circle at top left, #0f172a, #020617);
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .review-item {
+      border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+      padding: 6px 0;
+    }
+
+    .review-item:last-child { border-bottom: none; }
+
+    .review-stars {
+      color: #fbbf24;
+      font-size: 0.8rem;
+      margin-bottom: 2px;
+    }
+
+    .review-form {
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 12px 14px;
+      font-size: 0.85rem;
+    }
+
+    /* PAYMENT SECTION */
+    .payment-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.6fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .payment-grid { grid-template-columns: 1fr; }
+    }
+
+    .payment-panel {
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 14px 16px;
+      font-size: 0.85rem;
+    }
+
+    .payment-summary {
+      background: radial-gradient(circle at top left, #0f172a, #020617);
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      min-height: 90px;
+    }
+
+    /* CONTACT & NEWSLETTER */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.6fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .contact-grid { grid-template-columns: 1fr; }
+    }
+
+    .newsletter-box {
+      background: radial-gradient(circle at top left, #0f172a, #020617);
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      padding: 14px 16px;
+      font-size: 0.85rem;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 16px 0 20px;
+      font-size: 0.8rem;
+      background: #020617;
+    }
+
+    .footer-top {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) repeat(2, minmax(0, 1fr));
+      gap: 20px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 900px) {
+      .footer-top { grid-template-columns: 1fr; }
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .footer-links a { color: #9ca3af; }
+    .footer-links a:hover { color: #e5e7eb; }
+
+    .footer-bottom {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    /* BACK TO TOP */
+    #backToTop {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      background: #22c55e;
+      color: #020617;
+      border-radius: 999px;
+      border: none;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: none;
+    }
+  </style>
 </head>
-<body class="container mt-4">
+<body>
+  <!-- HEADER -->
+  <header>
+    <div class="container nav-inner">
+      <div class="logo">Volt<span>Slot</span></div>
+      <nav>
+        <div class="nav-toggle" id="navToggle">☰</div>
+        <ul id="navLinks">
+          <li><a href="#home" class="nav-link active">Home</a></li>
+          <li><a href="#stations" class="nav-link">Stations</a></li>
+          <li><a href="#locator" class="nav-link">Locator</a></li>
+          <li><a href="#booking" class="nav-link">Slot booking</a></li>
+          <li><a href="#payment" class="nav-link">Payment</a></li>
+          <li><a href="#reviews" class="nav-link">Reviews</a></li>
+          <li><a href="#gallery" class="nav-link">Gallery</a></li>
+          <li><a href="#contact" class="nav-link">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="nav-buttons">
+        <button class="btn btn-outline">Login</button>
+        <button class="btn btn-primary">Sign up</button>
+      </div>
+    </div>
+  </header>
 
-<h3>Charging Stations</h3>
-<ul id="list"></ul>
+  <!-- HERO -->
+  <section id="home">
+    <div class="container hero-grid">
+      <div>
+        <div class="hero-tag">
+          <div class="tag-dot"></div>
+          <span>EV charging station locator, slot booking & payment demo</span>
+        </div>
+        <h1 class="hero-title">
+          Book your EV charging
+          <span class="hero-highlight">slot and pay online</span>
+          in a simple web app.
+        </h1>
+        <p class="hero-text">
+          VoltSlot lets EV owners find nearby charging stations, reserve a slot and simulate payment in a beginner‑friendly front‑end project (no real money used).
+        </p>
+        <div class="hero-buttons">
+          <a href="#booking" class="btn btn-primary">Book a slot now</a>
+          <a href="#payment" class="btn btn-outline">Go to payment</a>
+        </div>
+        <div class="hero-metrics">
+          <div>
+            <h4>120+</h4>
+            <span class="small-text">Stations in dataset</span>
+          </div>
+          <div>
+            <h4>2,000+</h4>
+            <span class="small-text">Slots booked per week (demo)</span>
+          </div>
+          <div>
+            <h4>4.8★</h4>
+            <span class="small-text">Average customer rating</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="hero-image-box">
+          <img src="https://images.pexels.com/photos/7994432/pexels-photo-7994432.jpeg" alt="EV charging at night station" />
+          <div class="hero-label">
+            Example: Hitech City hub · 3 slots booked · 3 free · ₹12/kWh approx
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<script src="js/common.js"></script>
-<script src="js/stations.js"></script>
+  <!-- STATIONS LIST -->
+  <section id="stations">
+    <div class="container">
+      <div class="section-header">
+        <h2>Available stations</h2>
+        <p>Stations used in this demo for slot booking, locator filters and payment summary.</p>
+      </div>
+      <div class="card-grid" id="stationCards"></div>
+    </div>
+  </section>
+
+  <!-- LOCATOR + MAP -->
+  <section id="locator">
+    <div class="container">
+      <div class="section-header">
+        <h2>Find station by filters</h2>
+        <p>Simple station filters + Google Maps embed for the city area.</p>
+      </div>
+      <div class="locator-grid">
+        <div class="locator-panel">
+          <div class="form-row">
+            <label for="searchArea">Search area (city or place)</label>
+            <input type="text" id="searchArea" placeholder="Example: Hitech City, Hyderabad" />
+          </div>
+          <div class="form-row">
+            <label for="connectorFilter">Connector type</label>
+            <select id="connectorFilter">
+              <option value="any">Any</option>
+              <option value="CCS2">CCS2</option>
+              <option value="Type 2">Type 2</option>
+              <option value="CHAdeMO">CHAdeMO</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="speedFilter">Speed</label>
+            <select id="speedFilter">
+              <option value="any">Any</option>
+              <option value="Fast">Fast (50kW+)</option>
+              <option value="Normal">Normal (<=22kW)</option>
+            </select>
+          </div>
+          <div class="form-check-row">
+            <input type="checkbox" id="openNowFilter" />
+            <label for="openNowFilter">Only show stations open now</label>
+          </div>
+          <button class="btn btn-primary" type="button" id="locatorBtn">Search stations</button>
+          <p id="locatorResult" class="small-text" style="margin-top: 8px;">
+            Result summary will appear here after search.
+          </p>
+        </div>
+        <div class="map-box">
+          <iframe
+            id="mapFrame"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.504388542583!2d78.37247637509267!3d17.43801688345216!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb93e8df0856dd%3A0x48946aeb9d0dc034!2sHitec%20City%2C%20Hyderabad%2C%20Telangana!5e0!3m2!1sen!2sin!4v1700000000000"
+            loading="lazy"
+          ></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXTRA MAPS SECTION: MULTIPLE CITY BUTTONS -->
+  <section id="maps">
+    <div class="container">
+      <div class="section-header">
+        <h2>Map view: different areas</h2>
+        <p>Click on a city / area to change the map. This is front‑end only (no real API key).</p>
+      </div>
+      <div class="city-buttons">
+        <button class="city-btn active" data-map="hitech">Hyderabad · Hitech City</button>
+        <button class="city-btn" data-map="banjara">Hyderabad · Banjara Hills</button>
+        <button class="city-btn" data-map="bangalore">Bangalore · Whitefield</button>
+        <button class="city-btn" data-map="mumbai">Mumbai · BKC</button>
+      </div>
+      <div class="map-box">
+        <iframe
+          id="multiMapFrame"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.504388542583!2d78.37247637509267!3d17.43801688345216!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb93e8df0856dd%3A0x48946aeb9d0dc034!2sHitec%20City%2C%20Hyderabad%2C%20Telangana!5e0!3m2!1sen!2sin!4v1700000000000"
+          loading="lazy"
+        ></iframe>
+      </div>
+      <p class="small-text" style="margin-top:8px;">
+        In a real project, these buttons can call Google Maps or Places API to show live EV chargers.[web:70][web:108]
+      </p>
+    </div>
+  </section>
+
+  <!-- SLOT BOOKING -->
+  <section id="booking">
+    <div class="container">
+      <div class="section-header">
+        <h2>Book your charging slot</h2>
+        <p>Simple logic: checks available slots from dataset and saves your bookings in memory.</p>
+      </div>
+      <div class="booking-grid">
+        <div class="booking-panel">
+          <form id="bookingForm">
+            <div class="form-row">
+              <label for="userName">Full name</label>
+              <input type="text" id="userName" required />
+            </div>
+            <div class="form-row">
+              <label for="userVehicle">Vehicle model</label>
+              <input type="text" id="userVehicle" placeholder="e.g. Nexon EV" required />
+            </div>
+            <div class="form-row">
+              <label for="bookingStation">Select station</label>
+              <select id="bookingStation" required></select>
+            </div>
+            <div class="form-row">
+              <label for="bookingConnector">Connector type</label>
+              <select id="bookingConnector" required>
+                <option value="CCS2">CCS2</option>
+                <option value="Type 2">Type 2</option>
+                <option value="CHAdeMO">CHAdeMO</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label for="bookingDate">Date</label>
+              <input type="date" id="bookingDate" required />
+            </div>
+            <div class="form-row">
+              <label for="bookingTime">Start time</label>
+              <input type="time" id="bookingTime" required />
+            </div>
+            <div class="form-row">
+              <label for="bookingDuration">Duration (hours)</label>
+              <select id="bookingDuration" required>
+                <option value="1">1 hour</option>
+                <option value="2">2 hours</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" type="submit">Check & book slot</button>
+            <p id="bookingStatus" class="small-text" style="margin-top: 8px;"></p>
+          </form>
+        </div>
+        <div>
+          <div class="booking-summary" id="bookingSummary">
+            <strong>Booking summary:</strong>
+            <p class="small-text" style="margin-top: 6px;">
+              No booking yet. Fill the form and click "Check & book slot".
+            </p>
+          </div>
+          <div class="booking-list" id="bookingList"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAYMENT SECTION -->
+  <section id="payment">
+    <div class="container">
+      <div class="section-header">
+        <h2>Payment (demo only)</h2>
+        <p>Beginner‑level payment form. No real gateway, just front‑end validation and success message.[web:96][web:97][web:104]</p>
+      </div>
+      <div class="payment-grid">
+        <div class="payment-panel">
+          <form id="paymentForm">
+            <div class="form-row">
+              <label for="payName">Card holder name</label>
+              <input type="text" id="payName" placeholder="Name on card" required />
+            </div>
+            <div class="form-row">
+              <label for="payCard">Card number</label>
+              <input type="text" id="payCard" maxlength="19" placeholder="1111 2222 3333 4444" required />
+            </div>
+            <div class="form-row" style="display:flex; gap:10px;">
+              <div style="flex:1;">
+                <label for="payExpiry">Expiry (MM/YY)</label>
+                <input type="text" id="payExpiry" maxlength="5" placeholder="08/28" required />
+              </div>
+              <div style="flex:1;">
+                <label for="payCvv">CVV</label>
+                <input type="password" id="payCvv" maxlength="4" placeholder="123" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <label for="payEmail">Receipt email</label>
+              <input type="email" id="payEmail" placeholder="you@example.com" required />
+            </div>
+            <button class="btn btn-primary" type="submit">Pay now (demo)</button>
+            <p id="paymentStatus" class="small-text" style="margin-top: 8px;"></p>
+          </form>
+        </div>
+        <div class="payment-summary" id="paymentSummary">
+          <strong>Payment summary:</strong>
+          <p class="small-text" style="margin-top:6px;">
+            After you book a slot, you can imagine using this section to pay charging fees online. This demo just shows a success message to explain the flow.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REVIEWS -->
+  <section id="reviews">
+    <div class="container">
+      <div class="section-header">
+        <h2>Customer reviews</h2>
+        <p>Simple review list and mini form so users can share experience after booking slots.</p>
+      </div>
+      <div class="reviews-grid">
+        <div class="review-list" id="reviewList"></div>
+        <div class="review-form">
+          <h3 style="font-size:1.1rem; margin-bottom:6px;">Write a review</h3>
+          <p class="small-text" style="margin-bottom:8px;">
+            Reviews are stored only in this browser tab for the demo.
+          </p>
+          <form id="reviewForm">
+            <div class="form-row">
+              <label for="reviewName">Your name</label>
+              <input type="text" id="reviewName" required />
+            </div>
+            <div class="form-row">
+              <label for="reviewRating">Rating (1 to 5)</label>
+              <select id="reviewRating" required>
+                <option value="5">5 - Excellent</option>
+                <option value="4">4 - Good</option>
+                <option value="3">3 - Average</option>
+                <option value="2">2 - Poor</option>
+                <option value="1">1 - Very bad</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label for="reviewText">Your review</label>
+              <textarea id="reviewText" required placeholder="Example: Slot booking was easy and station was accurate..."></textarea>
+            </div>
+            <button class="btn btn-primary" type="submit">Submit review</button>
+            <p id="reviewStatus" class="small-text" style="margin-top: 8px;"></p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY + CAROUSEL -->
+  <section id="gallery">
+    <div class="container">
+      <div class="section-header">
+        <h2>Station images</h2>
+        <p>Carousel plus a bunch of EV charging photos in a simple grid.</p>
+      </div>
+      <div class="carousel" id="simpleCarousel">
+        <div class="carousel-slide active">
+          <img src="https://images.pexels.com/photos/9799992/pexels-photo-9799992.jpeg" alt="Night highway chargers" />
+          <div class="carousel-caption">
+            Night‑time highway chargers with strong lighting and CCTV.
+          </div>
+        </div>
+        <div class="carousel-slide">
+          <img src="https://images.pexels.com/photos/110844/pexels-photo-110844.jpeg" alt="Mall EV station" />
+          <div class="carousel-caption">
+            Mall parking EV zone where you can shop while charging.
+          </div>
+        </div>
+        <div class="carousel-slide">
+          <img src="https://images.pexels.com/photos/14733028/pexels-photo-14733028.jpeg" alt="Rooftop EV station" />
+          <div class="carousel-caption">
+            Rooftop station with city view and multiple chargers.
+          </div>
+        </div>
+        <div class="carousel-controls">
+          <button class="carousel-btn" id="prevSlide">&#8249;</button>
+          <button class="carousel-btn" id="nextSlide">&#8250;</button>
+        </div>
+      </div>
+
+      <div class="gallery-grid" style="margin-top: 20px;">
+        <div class="gallery-item">
+          <img src="https://images.pexels.com/photos/1308119/pexels-photo-1308119.jpeg" alt="Cable close up" />
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.pexels.com/photos/3859966/pexels-photo-3859966.jpeg" alt="Charging cable plugged" />
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.pexels.com/photos/9799994/pexels-photo-9799994.jpeg" alt="Row of multiple chargers" />
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.pexels.com/photos/1308318/pexels-photo-1308318.jpeg" alt="Street EV charging" />
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.pexels.com/photos/15777974/pexels-photo-15777974.jpeg" alt="EV charger screen" />
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.pexels.com/photos/7994433/pexels-photo-7994433.jpeg" alt="EV car at station" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STORIES -->
+  <section id="stories">
+    <div class="container">
+      <div class="section-header">
+        <h2>Driver stories</h2>
+        <p>Short cards that show how slot booking and payment help EV drivers.[web:77][web:101]</p>
+      </div>
+      <div class="test-grid">
+        <div class="test-card">
+          <p>“With VoltSlot, I booked a fast charger on my ORR trip and avoided waiting in a long queue.”</p>
+          <div class="test-footer">
+            <span>Aarav · Kona EV</span>
+            <span>4.9 ★</span>
+          </div>
+        </div>
+        <div class="test-card">
+          <p>“I like that I can see connector type, speed and sample cost before booking and paying.”</p>
+          <div class="test-footer">
+            <span>Riya · Nexon EV</span>
+            <span>4.8 ★</span>
+          </div>
+        </div>
+        <div class="test-card">
+          <p>“For our taxi fleet we book and pay in advance at night and keep cars ready for morning rides.”</p>
+          <div class="test-footer">
+            <span>Kiran · Fleet owner</span>
+            <span>4.7 ★</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT + NEWSLETTER -->
+  <section id="contact">
+    <div class="container">
+      <div class="section-header">
+        <h2>Contact & email sign‑ups</h2>
+        <p>Useful for your major project: simple contact form and newsletter subscription.</p>
+      </div>
+      <div class="contact-grid">
+        <div>
+          <form id="contactForm">
+            <div class="form-row">
+              <label for="contactName">Your name</label>
+              <input type="text" id="contactName" required />
+            </div>
+            <div class="form-row">
+              <label for="contactEmail">Email address</label>
+              <input type="email" id="contactEmail" required />
+            </div>
+            <div class="form-row">
+              <label for="contactMessage">Message</label>
+              <textarea id="contactMessage" required></textarea>
+            </div>
+            <button class="btn btn-primary" type="submit">Send message</button>
+            <p id="contactResult" class="small-text" style="margin-top: 8px;"></p>
+          </form>
+        </div>
+        <div>
+          <div class="newsletter-box">
+            <h3 style="font-size:1.1rem; margin-bottom:6px;">Get launch updates</h3>
+            <p class="small-text" style="margin-bottom:8px;">
+              Receive new station updates, price changes and demo route plans in your inbox.
+            </p>
+            <form id="newsletterForm">
+              <div class="form-row">
+                <label for="newsletterEmail">Email address</label>
+                <input type="email" id="newsletterEmail" required />
+              </div>
+              <button class="btn btn-primary" type="submit">Subscribe</button>
+              <p id="newsletterResult" class="small-text" style="margin-top: 8px;"></p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-top">
+        <div>
+          <h3 style="font-size:1rem; margin-bottom:4px;">VoltSlot – EV Slot Booking</h3>
+          <p class="small-text">
+            Demo website for an EV charging station locator, slot booking and basic payment flow. Built as a student‑friendly front‑end project (no backend, no real money).
+          </p>
+        </div>
+        <div>
+          <h4 style="font-size:0.9rem; margin-bottom:4px;">Quick links</h4>
+          <div class="footer-links">
+            <a href="#home">Home</a>
+            <a href="#stations">Stations</a>
+            <a href="#booking">Slot booking</a>
+            <a href="#payment">Payment</a>
+          </div>
+        </div>
+        <div>
+          <h4 style="font-size:0.9rem; margin-bottom:4px;">Support & social</h4>
+          <div class="footer-links">
+            <a href="#contact">Contact support</a>
+            <span>Instagram · @voltslot_ev</span>
+            <span>Twitter · @voltslot_app</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span id="yearSpan"></span> VoltSlot · All rights reserved.</span>
+        <span class="small-text">This is a student / demo project. No real charging or payment happens here.</span>
+      </div>
+    </div>
+  </footer>
+
+  <button id="backToTop" type="button">↑ Top</button>
+
+  <!-- JAVASCRIPT -->
+  <script>
+    // DATASET OF STATIONS
+    const stations = [
+      {
+        id: 1,
+        name: "Skyline SuperCharge",
+        area: "Financial District, Hyderabad",
+        connector: "CCS2",
+        speed: "Fast",
+        openNow: true,
+        slotsTotal: 6,
+        slotsBooked: 3,
+        approxRate: 12,
+        image: "https://images.pexels.com/photos/1308318/pexels-photo-1308318.jpeg"
+      },
+      {
+        id: 2,
+        name: "Highway GreenHub",
+        area: "ORR Exit 11",
+        connector: "CHAdeMO",
+        speed: "Fast",
+        openNow: false,
+        slotsTotal: 8,
+        slotsBooked: 7,
+        approxRate: 11,
+        image: "https://images.pexels.com/photos/110844/pexels-photo-110844.jpeg"
+      },
+      {
+        id: 3,
+        name: "MetroMall Deck",
+        area: "Inorbit Mall, Hyderabad",
+        connector: "Type 2",
+        speed: "Normal",
+        openNow: true,
+        slotsTotal: 10,
+        slotsBooked: 4,
+        approxRate: 9.5,
+        image: "https://images.pexels.com/photos/9799993/pexels-photo-9799993.jpeg"
+      }
+    ];
+
+    const bookings = [];
+    const reviews = [
+      { name: "Aarav", rating: 5, text: "Booking a slot for my Kona EV was simple and I got a free charger quickly." },
+      { name: "Riya", rating: 4, text: "Good interface for beginners. I like the clear station details before booking." },
+      { name: "Kiran", rating: 5, text: "For our small fleet, advance booking reduces morning chaos at chargers." }
+    ];
+
+    // NAV TOGGLE
+    const navToggle = document.getElementById("navToggle");
+    const navLinks = document.getElementById("navLinks");
+
+    navToggle.addEventListener("click", function () {
+      navLinks.classList.toggle("open");
+    });
+
+    // ACTIVE NAV ON SCROLL
+    const sections = document.querySelectorAll("section");
+    const navLinkElements = document.querySelectorAll(".nav-link");
+
+    window.addEventListener("scroll", function () {
+      let currentId = "";
+      sections.forEach(function (sec) {
+        const rect = sec.getBoundingClientRect();
+        const offset = rect.top + window.scrollY - 90;
+        if (window.scrollY >= offset && window.scrollY < offset + sec.offsetHeight) {
+          currentId = sec.id;
+        }
+      });
+      navLinkElements.forEach(function (link) {
+        link.classList.remove("active");
+        if (link.getAttribute("href") === "#" + currentId) {
+          link.classList.add("active");
+        }
+      });
+    });
+
+    // RENDER STATIONS
+    const stationCards = document.getElementById("stationCards");
+    const bookingStationSelect = document.getElementById("bookingStation");
+
+    function renderStations() {
+      stationCards.innerHTML = "";
+      bookingStationSelect.innerHTML = "";
+      stations.forEach(function (s) {
+        const freeSlots = s.slotsTotal - s.slotsBooked;
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <img src="${s.image}" alt="${s.name}">
+          <div class="card-body">
+            <div class="card-title-row">
+              <h4 style="font-size:1rem;">${s.name}</h4>
+              <span class="status-dot ${s.openNow ? "status-online" : "status-busy"}"></span>
+            </div>
+            <p class="small-text">${s.area}</p>
+            <div class="card-tags">
+              <span class="tag-pill">${s.connector}</span>
+              <span class="tag-pill">${s.speed}</span>
+              <span class="tag-pill">${s.slotsTotal} slots</span>
+              <span class="tag-pill">₹${s.approxRate}/kWh</span>
+            </div>
+            <div class="card-foot">
+              <span class="small-text">${freeSlots} free slot(s)</span>
+              <span class="small-text">${s.openNow ? "Open now" : "Closes soon"}</span>
+            </div>
+          </div>
+        `;
+        stationCards.appendChild(card);
+
+        const opt = document.createElement("option");
+        opt.value = s.id;
+        opt.textContent = s.name + " (" + s.area + ")";
+        bookingStationSelect.appendChild(opt);
+      });
+    }
+    renderStations();
+
+    // LOCATOR FILTER
+    const locatorBtn = document.getElementById("locatorBtn");
+    const locatorResult = document.getElementById("locatorResult");
+
+    locatorBtn.addEventListener("click", function () {
+      const areaInput = document.getElementById("searchArea").value.toLowerCase();
+      const connectorFilter = document.getElementById("connectorFilter").value;
+      const speedFilter = document.getElementById("speedFilter").value;
+      const openNowFilter = document.getElementById("openNowFilter").checked;
+
+      const filtered = stations.filter(function (s) {
+        const matchesArea =
+          areaInput === "" || s.area.toLowerCase().includes(areaInput) || s.name.toLowerCase().includes(areaInput);
+        const matchesConnector = connectorFilter === "any" || s.connector === connectorFilter;
+        const matchesSpeed = speedFilter === "any" || s.speed === speedFilter;
+        const matchesOpen = !openNowFilter || s.openNow;
+        return matchesArea && matchesConnector && matchesSpeed && matchesOpen;
+      });
+
+      if (filtered.length === 0) {
+        locatorResult.textContent = "No station found with selected filters. Try changing the search.";
+      } else {
+        const names = filtered.map(function (s) { return s.name; });
+        locatorResult.textContent =
+          "Found " + filtered.length + " station(s): " + names.join(", ") + ". (Map is static in this demo).";
+      }
+    });
+
+    // EXTRA MAPS SECTION: change iframe src by city
+    const cityButtons = document.querySelectorAll(".city-btn");
+    const multiMapFrame = document.getElementById("multiMapFrame");
+
+    const cityMapSrc = {
+      hitech:
+        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.504388542583!2d78.37247637509267!3d17.43801688345216!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb93e8df0856dd%3A0x48946aeb9d0dc034!2sHitec%20City%2C%20Hyderabad%2C%20Telangana!5e0!3m2!1sen!2sin!4v1700000000000",
+      banjara:
+        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.9498396652904!2d78.43772087509219!3d17.420159483462!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb96c15758e7c7%3A0x7b68b06e0f2d0ad2!2sBanjara%20Hills%2C%20Hyderabad%2C%20Telangana!5e0!3m2!1sen!2sin!4v1700000000001",
+      bangalore:
+        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.087722867568!2d77.72663997501407!3d12.969795187349251!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae122b9a1a2cf3%3A0x3e0a87140c88001!2sWhitefield%2C%20Bengaluru%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1700000000002",
+      mumbai:
+        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3770.843584565269!2d72.85321827505552!3d19.06643125212852!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c90af4a5dc2f%3A0x5e3d4f6fb9a2b805!2sBandra%20Kurla%20Complex%20(BKC)%2C%20Mumbai%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1700000000003"
+    };
+
+    cityButtons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        cityButtons.forEach(function (b) { b.classList.remove("active"); });
+        btn.classList.add("active");
+        const key = btn.getAttribute("data-map");
+        multiMapFrame.src = cityMapSrc[key];
+      });
+    });
+
+    // BOOKING FORM
+    const bookingForm = document.getElementById("bookingForm");
+    const bookingStatus = document.getElementById("bookingStatus");
+    const bookingSummary = document.getElementById("bookingSummary");
+    const bookingList = document.getElementById("bookingList");
+
+    bookingForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById("userName").value.trim();
+      const vehicle = document.getElementById("userVehicle").value.trim();
+      const stationId = parseInt(document.getElementById("bookingStation").value, 10);
+      const connector = document.getElementById("bookingConnector").value;
+      const date = document.getElementById("bookingDate").value;
+      const time = document.getElementById("bookingTime").value;
+      const duration = document.getElementById("bookingDuration").value;
+
+      if (!name || !vehicle || !date || !time) {
+        bookingStatus.textContent = "Please fill all fields.";
+        bookingStatus.style.color = "#f97316";
+        return;
+      }
+
+      const station = stations.find(function (s) { return s.id === stationId; });
+      if (!station) {
+        bookingStatus.textContent = "Station not found.";
+        bookingStatus.style.color = "#f97316";
+        return;
+      }
+
+      const existingCount = bookings.filter(function (b) {
+        return b.stationId === stationId && b.date === date && b.time === time;
+      }).length;
+
+      const freeSlots = station.slotsTotal - station.slotsBooked - existingCount;
+
+      if (freeSlots <= 0) {
+        bookingStatus.textContent = "Selected time is full. Please choose a different time or station.";
+        bookingStatus.style.color = "#f97316";
+        return;
+      }
+
+      const newBooking = {
+        user: name,
+        vehicle: vehicle,
+        stationId: stationId,
+        stationName: station.name,
+        connector: connector,
+        date: date,
+        time: time,
+        duration: duration,
+        approxAmount: (station.approxRate * duration * 15).toFixed(0) // fake cost
+      };
+      bookings.push(newBooking);
+
+      bookingStatus.textContent = "Slot booked successfully! You can now go to Payment section (demo).";
+      bookingStatus.style.color = "#22c55e";
+
+      bookingSummary.innerHTML =
+        "<strong>Booking summary:</strong>" +
+        "<p class='small-text' style='margin-top:6px;'>" +
+        "Name: " + name + "<br>" +
+        "Vehicle: " + vehicle + "<br>" +
+        "Station: " + station.name + "<br>" +
+        "Connector: " + connector + "<br>" +
+        "Date: " + date + " · Time: " + time + " · Duration: " + duration + " hour(s)<br>" +
+        "Estimated amount: ₹" + newBooking.approxAmount +
+        "</p>";
+
+      updatePaymentSummary(newBooking);
+      renderBookings();
+      bookingForm.reset();
+    });
+
+    function renderBookings() {
+      if (bookings.length === 0) {
+        bookingList.innerHTML = "";
+        return;
+      }
+      let html = "<h4 style='font-size:1rem;margin-top:10px;'>Your bookings:</h4>";
+      bookings.forEach(function (b, index) {
+        html +=
+          "<div class='booking-item'>" +
+          (index + 1) +
+          ". " +
+          b.stationName +
+          " · " +
+          b.date +
+          " " +
+          b.time +
+          " · " +
+          b.duration +
+          "h · " +
+          b.connector +
+          " · ₹" +
+          b.approxAmount +
+          "</div>";
+      });
+      bookingList.innerHTML = html;
+    }
+
+    // PAYMENT SUMMARY + FORM
+    const paymentSummary = document.getElementById("paymentSummary");
+    const paymentForm = document.getElementById("paymentForm");
+    const paymentStatus = document.getElementById("paymentStatus");
+
+    function updatePaymentSummary(lastBooking) {
+      paymentSummary.innerHTML =
+        "<strong>Payment summary:</strong>" +
+        "<p class='small-text' style='margin-top:6px;'>" +
+        "Last booking: " +
+        lastBooking.stationName +
+        " · " +
+        lastBooking.date +
+        " " +
+        lastBooking.time +
+        "<br>Duration: " +
+        lastBooking.duration +
+        " hour(s) · Approx amount: ₹" +
+        lastBooking.approxAmount +
+        "<br>This payment form is only a demo. It does not charge real money." +
+        "</p>";
+    }
+
+    // Simple card formatting: add spaces every 4 digits
+    const payCardInput = document.getElementById("payCard");
+    payCardInput.addEventListener("input", function () {
+      let value = payCardInput.value.replace(/\D/g, "");
+      value = value.match(/.{1,4}/g)?.join(" ") || "";
+      payCardInput.value = value;
+    });
+
+    // Simple expiry formatting: MM/YY
+    const payExpiryInput = document.getElementById("payExpiry");
+    payExpiryInput.addEventListener("input", function () {
+      let value = payExpiryInput.value.replace(/\D/g, "");
+      if (value.length >= 3) {
+        value = value.slice(0, 2) + "/" + value.slice(2, 4);
+      }
+      payExpiryInput.value = value;
+    });
+
+    paymentForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const name = document.getElementById("payName").value.trim();
+      const card = document.getElementById("payCard").value.replace(/\s/g, "");
+      const expiry = document.getElementById("payExpiry").value.trim();
+      const cvv = document.getElementById("payCvv").value.trim();
+      const email = document.getElementById("payEmail").value.trim();
+
+      if (!name || !card || !expiry || !cvv || !email) {
+        paymentStatus.textContent = "Please fill all payment fields.";
+        paymentStatus.style.color = "#f97316";
+        return;
+      }
+      if (card.length < 12) {
+        paymentStatus.textContent = "Card number looks too short.";
+        paymentStatus.style.color = "#f97316";
+        return;
+      }
+      if (!expiry.includes("/")) {
+        paymentStatus.textContent = "Expiry format should be MM/YY.";
+        paymentStatus.style.color = "#f97316";
+        return;
+      }
+      if (cvv.length < 3) {
+        paymentStatus.textContent = "CVV should be 3 or 4 digits.";
+        paymentStatus.style.color = "#f97316";
+        return;
+      }
+
+      paymentStatus.textContent =
+        "Payment simulated successfully! (Demo only, no real charge). Receipt sent to " + email + ".";
+      paymentStatus.style.color = "#22c55e";
+      paymentForm.reset();
+    });
+
+    // CUSTOMER REVIEWS
+    const reviewList = document.getElementById("reviewList");
+    const reviewForm = document.getElementById("reviewForm");
+    const reviewStatus = document.getElementById("reviewStatus");
+
+    function renderReviews() {
+      if (reviews.length === 0) {
+        reviewList.innerHTML = "<p class='small-text'>No reviews yet. Be the first to add one.</p>";
+        return;
+      }
+      reviewList.innerHTML = "";
+      reviews.forEach(function (r) {
+        const item = document.createElement("div");
+        item.className = "review-item";
+        const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
+        item.innerHTML =
+          "<div class='review-stars'>" + stars + "</div>" +
+          "<strong style='font-size:0.9rem;'>" + r.name + "</strong>" +
+          "<p class='small-text'>" + r.text + "</p>";
+        reviewList.appendChild(item);
+      });
+    }
+    renderReviews();
+
+    reviewForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const name = document.getElementById("reviewName").value.trim();
+      const rating = parseInt(document.getElementById("reviewRating").value, 10);
+      const text = document.getElementById("reviewText").value.trim();
+
+      if (!name || !text) {
+        reviewStatus.textContent = "Please fill your name and review.";
+        reviewStatus.style.color = "#f97316";
+        return;
+      }
+
+      reviews.unshift({ name: name, rating: rating, text: text });
+      renderReviews();
+      reviewStatus.textContent = "Thank you for your review!";
+      reviewStatus.style.color = "#22c55e";
+      reviewForm.reset();
+    });
+
+    // CAROUSEL
+    const slides = document.querySelectorAll(".carousel-slide");
+    const prevSlideBtn = document.getElementById("prevSlide");
+    const nextSlideBtn = document.getElementById("nextSlide");
+    let currentSlide = 0;
+
+    function showSlide(index) {
+      slides.forEach(function (slide, i) {
+        slide.classList.remove("active");
+        if (i === index) slide.classList.add("active");
+      });
+    }
+
+    prevSlideBtn.addEventListener("click", function () {
+      currentSlide--;
+      if (currentSlide < 0) currentSlide = slides.length - 1;
+      showSlide(currentSlide);
+    });
+
+    nextSlideBtn.addEventListener("click", function () {
+      currentSlide++;
+      if (currentSlide >= slides.length) currentSlide = 0;
+      showSlide(currentSlide);
+    });
+
+    setInterval(function () {
+      currentSlide++;
+      if (currentSlide >= slides.length) currentSlide = 0;
+      showSlide(currentSlide);
+    }, 5000);
+
+    // CONTACT FORM
+    const contactForm = document.getElementById("contactForm");
+    const contactResult = document.getElementById("contactResult");
+
+    contactForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      contactResult.textContent = "Thank you for contacting VoltSlot. We will reply soon.";
+      contactResult.style.color = "#22c55e";
+      contactForm.reset();
+    });
+
+    // NEWSLETTER
+    const newsletterForm = document.getElementById("newsletterForm");
+    const newsletterResult = document.getElementById("newsletterResult");
+
+    newsletterForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      newsletterResult.textContent = "You are subscribed to VoltSlot updates.";
+      newsletterResult.style.color = "#22c55e";
+      newsletterForm.reset();
+    });
+
+    // FOOTER YEAR
+    document.getElementById("yearSpan").textContent = new Date().getFullYear();
+
+    // BACK TO TOP
+    const backToTopBtn = document.getElementById("backToTop");
+    window.addEventListener("scroll", function () {
+      if (window.scrollY > 300) {
+        backToTopBtn.style.display = "block";
+      } else {
+        backToTopBtn.style.display = "none";
+      }
+    });
+    backToTopBtn.addEventListener("click", function () {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  </script>
 </body>
 </html>

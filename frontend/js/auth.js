@@ -29,16 +29,32 @@ function register() {
 function login() {
   fetch(API_BASE + "accounts/login/", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json"
+    },
     body: JSON.stringify({
-      username: username.value,
-      password: password.value
+      username: document.getElementById("username").value,
+      password: document.getElementById("password").value
     })
   })
   .then(res => res.json())
   .then(data => {
-    localStorage.setItem("access", data.access);
-    localStorage.setItem("refresh", data.refresh);
-    window.location = "stations.html";
+
+    if (data.status === "success") {
+      alert("Login Successful");
+
+      // optional storage
+      localStorage.setItem("username", data.username);
+
+      window.location.href = "stations.html";
+    } 
+    else {
+      alert(data.message);
+    }
+
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Server error");
   });
 }
