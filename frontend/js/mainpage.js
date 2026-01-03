@@ -179,36 +179,54 @@ document.getElementById("bookingForm").onsubmit = function (e) {
   e.preventDefault();
 
   const data = {
-    user_name: userName.value,
-    vehicle: userVehicle.value,
-    station_id: bookingStation.value,
-    connector: bookingConnector.value,
-    date: bookingDate.value,
-    time: bookingTime.value,
-    duration: bookingDuration.value,
+    user_name: document.getElementById("userName").value,
+    vehicle: document.getElementById("userVehicle").value,
+    connector: document.getElementById("bookingConnector").value,
+
+    // ✅ MATCHES MODEL
+    date: document.getElementById("bookingDate").value,
+    time: document.getElementById("bookingTime").value,
+
+    duration: Number(document.getElementById("bookingDuration").value),
     approx_amount: 150
   };
 
-  apiCall("bookings/", "POST", data).then(res => {
-    bookingStatus.textContent = res.message;
-    bookingStatus.style.color = res.success ? "#22c55e" : "#ef4444";
-  });
+  apiCall("bookings/", "POST", data)
+    .then(res => {
+      bookingStatus.textContent = res.message;
+      bookingStatus.style.color = res.success ? "green" : "red";
+
+      if (res.success) loadBookings();
+    })
+    .catch(() => {
+      bookingStatus.textContent = "Booking failed";
+      bookingStatus.style.color = "red";
+    });
 };
+
 
 // --------------------------------------
 // 6️⃣ LOAD BOOKINGS
 // --------------------------------------
 function loadBookings() {
-  apiCall("my-bookings/").then(data => {
-    bookingList.innerHTML = "";
-    data.bookings?.forEach(b => {
-      bookingList.innerHTML += `
-        <div class="booking-item">
-          ${b.station_id} - ${b.date} ${b.time} - ₹${b.approx_amount}
-        </div>`;
+  apiCall("my-bookings/")
+    .then(data => {
+      bookingList.innerHTML = "";
+
+      data.bookings.forEach(b => {
+        bookingList.innerHTML += `
+          <div class="booking-item">
+            EV Station |
+            ${b.date} ${b.time} |
+            ₹${b.approx_amount}
+          </div>
+        `;
+      });
     });
-  });
 }
+
+
+
 
 // --------------------------------------
 // 7️⃣ LOAD REVIEWS
