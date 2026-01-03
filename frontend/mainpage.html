@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,7 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./css/mainpage.css">
 </head>
-
 <body>
   <!-- HEADER -->
   <header>
@@ -29,10 +27,10 @@
           <li><a href="#contact" class="nav-link">Contact</a></li>
         </ul>
       </nav>
-
+      
       <div class="help-icon" onclick="openHelpPage()">
         <img src="assets/msg.png" alt="Help">
-      </div>
+      </div> 
     </div>
   </header>
 
@@ -50,8 +48,7 @@
           in a simple web app.
         </h1>
         <p class="hero-text">
-          VoltSlot lets EV owners find nearby charging stations, reserve a slot and simulate payment in a
-          beginner‑friendly front‑end project (no real money used).
+          VoltSlot lets EV owners find nearby charging stations, reserve a slot and simulate payment in a beginner‑friendly front‑end project (no real money used).
         </p>
         <div class="hero-buttons">
           <a href="#booking" class="btn btn-primary">Book a slot now</a>
@@ -95,18 +92,18 @@
   </section> -->
 
   <section id="stations">
-    <div class="container">
-      <div class="section-header">
-        <h2>Available stations</h2>
-        <p>Pick an available station to go to slot booking.</p>
-      </div>
-
-      <!-- ⭐ NEW stations list -->
-      <div id="stationList" class="card-grid">
-        <!-- JS will inject each station card here -->
-      </div>
+  <div class="container">
+    <div class="section-header">
+      <h2>Available stations</h2>
+      <p>Pick an available station to go to slot booking.</p>
     </div>
-  </section>
+
+    <!-- ⭐ NEW stations list -->
+    <div id="stationList" class="card-grid">
+      <!-- JS will inject each station card here -->
+    </div>
+  </div>
+</section>
 
 
   <!-- LOCATOR + MAP -->
@@ -136,7 +133,7 @@
             <select id="speedFilter">
               <option value="any">Any</option>
               <option value="Fast">Fast (50kW+)</option>
-              <option value="Normal">Normal (<=22kW)< /option>
+              <option value="Normal">Normal (<=22kW)</option>
             </select>
           </div>
           <div class="form-check-row">
@@ -149,9 +146,11 @@
           </p>
         </div>
         <div class="map-box">
-          <iframe id="mapFrame"
+          <iframe
+            id="mapFrame"
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.504388542583!2d78.37247637509267!3d17.43801688345216!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb93e8df0856dd%3A0x48946aeb9d0dc034!2sHitec%20City%2C%20Hyderabad%2C%20Telangana!5e0!3m2!1sen!2sin!4v1700000000000"
-            loading="lazy"></iframe>
+            loading="lazy"
+          ></iframe>
         </div>
       </div>
     </div>
@@ -171,9 +170,11 @@
         <button class="city-btn" data-map="mumbai">Mumbai · BKC</button>
       </div>
       <div class="map-box">
-        <iframe id="multiMapFrame"
+        <iframe
+          id="multiMapFrame"
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.504388542583!2d78.37247637509267!3d17.43801688345216!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb93e8df0856dd%3A0x48946aeb9d0dc034!2sHitec%20City%2C%20Hyderabad%2C%20Telangana!5e0!3m2!1sen!2sin!4v1700000000000"
-          loading="lazy"></iframe>
+          loading="lazy"
+        ></iframe>
       </div>
       <p class="small-text" style="margin-top:8px;">
         In a real project, these buttons can call Google Maps or Places API to show live EV chargers.[web:70][web:108]
@@ -244,50 +245,16 @@
   </section>
 
   <!-- PAYMENT SECTION -->
-  <section id="payment">
-    <div class="container">
-      <div class="section-header">
-        <h2>Payment (demo only)</h2>
-        <p>Beginner‑level payment form. No real gateway, just front‑end validation and success message.[web:96][web:97][web:104]</p>
-      </div>
-      <div class="payment-grid">
-        <div class="payment-panel">
-          <form id="paymentForm">
-            <div class="form-row">
-              <label for="payName">Card holder name</label>
-              <input type="text" id="payName" placeholder="Name on card" required />
-            </div>
-            <div class="form-row">
-              <label for="payCard">Card number</label>
-              <input type="text" id="payCard" maxlength="19" placeholder="1111 2222 3333 4444" required />
-            </div>
-            <div class="form-row" style="display:flex; gap:10px;">
-              <div style="flex:1;">
-                <label for="payExpiry">Expiry (MM/YY)</label>
-                <input type="text" id="payExpiry" maxlength="5" placeholder="08/28" required />
-              </div>
-              <div style="flex:1;">
-                <label for="payCvv">CVV</label>
-                <input type="password" id="payCvv" maxlength="4" placeholder="123" required />
-              </div>
-            </div>
-            <div class="form-row">
-              <label for="payEmail">Receipt email</label>
-              <input type="email" id="payEmail" placeholder="you@example.com" required />
-            </div>
-            <button class="btn btn-primary" type="submit">Pay now (demo)</button>
-            <p id="paymentStatus" class="small-text" style="margin-top: 8px;"></p>
-          </form>
-        </div>
-        <div class="payment-summary" id="paymentSummary">
-          <strong>Payment summary:</strong>
-          <p class="small-text" style="margin-top:6px;">
-            After you book a slot, you can imagine using this section to pay charging fees online. This demo just shows a success message to explain the flow.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
+ <p id="bookingStatus" class="small-text" style="margin-top:10px;"></p>
+
+<button
+  id="paymentBtn"
+  class="btn btn-primary payment-btn"
+  style="display:none;"
+>
+  Proceed to Payment
+</button>
+
 
   <!-- REVIEWS -->
   <section id="reviews">
@@ -320,8 +287,7 @@
             </div>
             <div class="form-row">
               <label for="reviewText">Your review</label>
-              <textarea id="reviewText" required
-                placeholder="Example: Slot booking was easy and station was accurate..."></textarea>
+              <textarea id="reviewText" required placeholder="Example: Slot booking was easy and station was accurate..."></textarea>
             </div>
             <button class="btn btn-primary" type="submit">Submit review</button>
             <p id="reviewStatus" class="small-text" style="margin-top: 8px;"></p>
@@ -342,57 +308,34 @@
         <div class="carousel-slide active">
           <video controls autoplay muted loop playsinline>
             <source src="./assets/ev_charger_video.mp4">
-          </video>
+          </video>  
           <div class="carousel-caption">
             Rooftop station with city view and multiple chargers.
           </div>
         </div>
-      </div>
-      <div class="gallery-wrapper" style="margin-top:20px;">
-  <div class="gallery-track">
-    <div class="gallery-grid">
-      <div class="gallery-item">
-        <img src="./assets/ev1.webp" alt="Cable close up">
-      </div>
-      <div class="gallery-item">
-        <img src="./assets/ev2.webp" alt="Charging cable plugged">
-      </div>
-      <div class="gallery-item">
-        <img src="./assets/ev3.png" alt="Row of multiple chargers">
-      </div>
-      <div class="gallery-item">
-        <img src="./assets/ev4.webp" alt="Street EV charging">
-      </div>
-      <div class="gallery-item">
-        <img src="./assets/ev5.webp" alt="EV charger screen">
-      </div>
-      <div class="gallery-item">
-        <img src="./assets/ev6.jpg" alt="EV car at station">
+        
       </div>
 
-      <!-- 🔁 DUPLICATE SAME ITEMS FOR INFINITE LOOP -->
-      <div class="gallery-item">
-        <img src="./assets/ev1.webp">
+      <div class="gallery-grid" style="margin-top: 20px;">
+        <div class="gallery-item">
+          <img src="./assets/ev1.webp" alt="Cable close up" />
+        </div>
+        <div class="gallery-item">
+          <img src="./assets/ev2.webp" alt="Charging cable plugged" />
+        </div>
+        <div class="gallery-item">
+          <img src="./assets/ev3.png" alt="Row of multiple chargers" />
+        </div>
+        <div class="gallery-item">
+          <img src="./assets/ev4.webp" alt="Street EV charging" />
+        </div>
+        <div class="gallery-item">
+          <img src="./assets/ev5.webp" alt="EV charger screen" />
+        </div>
+        <div class="gallery-item">
+          <img src="./assets/ev6.jpg" alt="EV car at station" />
+        </div>
       </div>
-      <div class="gallery-item">
-        <img src="./assets/ev2.webp">
-      </div>
-      <div class="gallery-item">
-        <img src="./assets/ev3.png">
-      </div>
-      <div class="gallery-item">
-        <img src="./assets/ev4.webp">
-      </div>
-      <div class="gallery-item">
-        <img src="./assets/ev5.webp">
-      </div>
-      <div class="gallery-item">
-        <img src="./assets/ev6.jpg">
-      </div>
-    </div>
-  </div>
-</div>
-
     </div>
   </section>
 
@@ -482,8 +425,7 @@
         <div>
           <h3 style="font-size:1rem; margin-bottom:4px;">VoltSlot – EV Slot Booking</h3>
           <p class="small-text">
-            Demo website for an EV charging station locator, slot booking and basic payment flow. Built as a
-            student‑friendly front‑end project (no backend, no real money).
+            Demo website for an EV charging station locator, slot booking and basic payment flow. Built as a student‑friendly front‑end project (no backend, no real money).
           </p>
         </div>
         <div>
@@ -513,13 +455,12 @@
 
   <button id="backToTop" type="button">↑ Top</button>
 
-
+  
   <!-- JAVASCRIPT -->
 
 
 
 
-  <script src="./js/mainpage.js"></script>
+<script src="./js/mainpage.js"></script>
 </body>
-
 </html>
