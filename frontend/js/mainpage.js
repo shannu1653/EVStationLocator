@@ -174,23 +174,24 @@ document.getElementById('locatorBtn').onclick = function () {
         cards.style.boxShadow = "none";
     }, 1200);
 };
-
+// Get elements
+const bookingForm = document.getElementById("bookingForm");
+const bookingStatus = document.getElementById("bookingStatus");
+const bookingList = document.getElementById("bookingList");
+const paymentBtn = document.getElementById("paymentBtn"); // ✅ IMPORTANT
 
 // --------------------------------------
 // 5️⃣ BOOK SLOT
 // --------------------------------------
-document.getElementById("bookingForm").onsubmit = function (e) {
+bookingForm.onsubmit = function (e) {
   e.preventDefault();
 
   const data = {
     user_name: document.getElementById("userName").value,
     vehicle: document.getElementById("userVehicle").value,
     connector: document.getElementById("bookingConnector").value,
-
-    // ✅ MATCHES MODEL
     date: document.getElementById("bookingDate").value,
     time: document.getElementById("bookingTime").value,
-
     duration: Number(document.getElementById("bookingDuration").value),
     approx_amount: 150
   };
@@ -200,7 +201,17 @@ document.getElementById("bookingForm").onsubmit = function (e) {
       bookingStatus.textContent = res.message;
       bookingStatus.style.color = res.success ? "green" : "red";
 
-      if (res.success) loadBookings();
+     if (res.success) {
+  bookingStatus.textContent = "Booking created!";
+  bookingStatus.style.color = "#22c55e";
+
+  // ✅ Store booking flag
+  localStorage.setItem("bookingDone", "true");
+
+  paymentBtn.style.display = "block";
+  loadBookings();
+}
+
     })
     .catch(() => {
       bookingStatus.textContent = "Booking failed";
@@ -208,32 +219,32 @@ document.getElementById("bookingForm").onsubmit = function (e) {
     });
 };
 
-
+// --------------------------------------
+// 6️⃣ LOAD BOOKINGS
+// --------------------------------------
 // --------------------------------------
 // 6️⃣ LOAD BOOKINGS
 // --------------------------------------
 function loadBookings() {
-  apiCall("my-bookings/")
-    .then(data => {
-      bookingList.innerHTML = "";
-
-      data.bookings.forEach(b => {
-        bookingList.innerHTML += `
-          <div class="booking-item">
-            EV Station |
-            ${b.date} ${b.time} |
-            ₹${b.approx_amount}
-          </div>
-        `;
-      });
-    });
+  bookingList.innerHTML = `
+    <p class="small-text">
+      Booking created successfully. Proceed to payment.
+    </p>
+  `;
 }
 
 
 
+// --------------------------------------
+// 7️⃣ PAYMENT BUTTON CLICK
+// --------------------------------------
+paymentBtn.onclick = function () {
+  window.location.href = "payment.html";
+};
+
 
 // --------------------------------------
-// 7️⃣ LOAD REVIEWS
+//  8️⃣LOAD REVIEWS
 // --------------------------------------
 function loadReviews() {
   apiCall("get-reviews/").then(data => {
@@ -251,7 +262,7 @@ function loadReviews() {
 }
 
 // --------------------------------------
-// 8️⃣ ADD REVIEW
+//9️⃣ ADD REVIEW
 // --------------------------------------
 reviewForm.onsubmit = function (e) {
   e.preventDefault();
@@ -268,7 +279,7 @@ reviewForm.onsubmit = function (e) {
 };
 
 // --------------------------------------
-// 9️⃣ CONTACT FORM
+// 🔟 CONTACT FORM
 // --------------------------------------
 contactForm.onsubmit = function (e) {
   e.preventDefault();
@@ -281,7 +292,7 @@ contactForm.onsubmit = function (e) {
 };
 
 // --------------------------------------
-// 🔟 NEWSLETTER
+// 1️⃣1️⃣ NEWSLETTER
 // --------------------------------------
 newsletterForm.onsubmit = function (e) {
   e.preventDefault();
@@ -292,7 +303,7 @@ newsletterForm.onsubmit = function (e) {
 };
 
 // --------------------------------------
-// 1️⃣1️⃣ START APP
+// 1️⃣2️⃣ START APP
 // --------------------------------------
 window.onload = function () {
   loadStations();

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Payment (Demo Only)</title>
+
+<style>
+/* ================= BASE STYLES ================= */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #020617;
+  color: #e5e7eb;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.section-header {
+  margin-bottom: 22px;
+}
+
+.section-header h2 {
+  margin: 0 0 6px;
+  font-size: 2rem;
+}
+
+.section-header p {
+  opacity: 0.85;
+  font-size: 0.95rem;
+}
+
+.small-text {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+/* ================= PAYMENT GRID ================= */
+.payment-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.6fr);
+  gap: 24px;
+}
+
+/* ================= PANELS ================= */
+.payment-panel {
+  background: rgba(15, 23, 42, 0.96);
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  padding: 20px;
+}
+
+.payment-summary {
+  background: radial-gradient(circle at top left, #0f172a, #020617);
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  padding: 20px;
+}
+
+/* ================= FORM ================= */
+.form-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+
+.form-row label {
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+.form-row input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  background: #020617;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.form-row input::placeholder {
+  color: #94a3b8;
+}
+
+.row-flex {
+  display: flex;
+  gap: 12px;
+}
+
+.row-flex > div {
+  flex: 1;
+}
+
+/* ================= BUTTON ================= */
+.btn {
+  padding: 12px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.btn-primary {
+  background: #22c55e;
+  color: #022c22;
+  font-weight: 600;
+}
+
+/* ================= TABLET ================= */
+@media (max-width: 900px) {
+  .payment-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .container {
+    margin: 30px auto;
+  }
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: 600px) {
+  .container {
+    margin: 20px auto;
+    padding: 0 14px;
+  }
+
+  .section-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .payment-panel,
+  .payment-summary {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .row-flex {
+    flex-direction: column;
+  }
+
+  .btn-primary {
+    width: 100%;
+    margin-top: 6px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<section id="payment">
+  <div class="container">
+
+    <div class="section-header">
+      <h2>Payment (demo only)</h2>
+      <p>
+        Beginner-level payment form. No real gateway,
+        just front-end validation and success message.
+      </p>
+    </div>
+
+    <div class="payment-grid">
+
+      <!-- PAYMENT FORM -->
+      <div class="payment-panel">
+        <form id="paymentForm">
+
+          <div class="form-row">
+            <label for="payName">Card holder name</label>
+            <input type="text" id="payName" placeholder="Name on card" required>
+          </div>
+
+          <div class="form-row">
+            <label for="payCard">Card number</label>
+            <input type="text" id="payCard" maxlength="19"
+                   placeholder="1111 2222 3333 4444" required>
+          </div>
+
+          <div class="form-row row-flex">
+            <div>
+              <label for="payExpiry">Expiry (MM/YY)</label> <br>
+              <input type="text" id="payExpiry" maxlength="5"
+                     placeholder="08/28" required>
+            </div>
+            <div>
+              <label for="payCvv">CVV</label> <br>
+              <input type="password" id="payCvv" maxlength="4"
+                     placeholder="123" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label for="payEmail">Receipt email</label>
+            <input type="email" id="payEmail"
+                   placeholder="you@example.com" required>
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            Pay now (demo)
+          </button>
+
+          <p id="paymentStatus" class="small-text" style="margin-top:10px;"></p>
+        </form>
+      </div>
+
+      <!-- SUMMARY -->
+      <div class="payment-summary">
+        <strong>Payment summary:</strong>
+        <p class="small-text" style="margin-top:8px;">
+          After you book a charging slot, you can imagine
+          using this section to pay charging fees online.
+          This demo only shows a success message to explain
+          the complete user flow.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+/* ================= PAYMENT LOGIC ================= */
+document.getElementById("paymentForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  document.getElementById("paymentStatus").textContent =
+    "Payment successful ✅";
+
+  // ✅ CLEAR EVERYTHING
+  localStorage.removeItem("bookingDone");
+
+  setTimeout(() => {
+    window.location.href = "mainpage.html";
+  }, 1500);
+});
+
+
+</script>
+
+</body>
+</html>
