@@ -22,59 +22,21 @@ function apiCall(endpoint, method = "GET", data = null) {
 
 
 const STATIONS_API = "http://127.0.0.1:8000/api/accounts/stations/";
+let ALL_STATIONS = [];
 
 /* FETCH + RENDER STATIONS */
 function loadStations() {
   fetch(STATIONS_API)
     .then(res => res.json())
     .then(data => {
-      const list = document.getElementById("stationList");
-      list.innerHTML = "";
-
-      if (!data.stations || data.stations.length === 0) {
-        list.innerHTML = "<p class='small-text'>No stations found.</p>";
-        return;
-      }
-
-      data.stations.forEach(station => {
-        if (station.is_available !== true) return;
-
-        const freeSlots = station.slots_total - station.slots_booked;
-
-        const card = document.createElement("div");
-        card.className = "card";
-
-        card.innerHTML = `
-          <img src="${station.image_url}" alt="${station.name}">
-          <div class="card-body">
-            <div class="card-title-row">
-              <h4 style="font-size:1rem;">${station.name}</h4>
-              <span class="status-dot status-online"></span>
-            </div>
-
-            <p class="small-text">${station.area}</p>
-
-            <div class="card-tags">
-              <span class="tag-pill">${station.connector}</span>
-              <span class="tag-pill">${station.speed}</span>
-              <span class="tag-pill">${freeSlots} free slots</span>
-              <span class="tag-pill">₹${station.approx_rate}</span>
-            </div>
-
-            <div class="card-foot">
-              <span class="small-text">Open now</span>
-              <span class="small-text">Available</span>
-            </div>
-          </div>
-        `;
-
-        list.appendChild(card);
-      });
+      ALL_STATIONS = data.stations || [];
+      renderStations(ALL_STATIONS); // show all initially
     })
     .catch(err => {
       console.error("Error loading stations:", err);
     });
 }
+
 function openHelpPage() {
     window.location.href = "help.html";
   }
@@ -93,65 +55,88 @@ window.onload = function () {
 
 // ⭐ 3. RENDER STATIONS (image + name + location + availability + click)
 function renderStations(stations) {
-    var list = document.getElementById('stationList');
-    var bookingSelect = document.getElementById('bookingStation');
-    list.innerHTML = '';
-    bookingSelect.innerHTML = '';
+  const list = document.getElementById("stationList");
+  list.innerHTML = "";
 
-    stations.forEach(function(s) {
-        var free = s.slots_total - s.slots_booked;
+  if (stations.length === 0) {
+    list.innerHTML = "<p class='small-text'>No stations found.</p>";
+    return;
+  }
 
-        // Create card div
-        var card = document.createElement('div');
-        card.className = 'card';
+  stations.forEach(station => {
+    if (!station.is_available) return;
 
-        // availability text + color
-        var availableText = s.is_available ? 'Available' : 'Not available';
-        var availableClass = s.is_available ? 'status-online' : 'status-busy';
+    const freeSlots = station.slots_total - station.slots_booked;
 
-        card.innerHTML =
-            '<img src="' + (s.image_url || "https://images.pexels.com/photos/7994432/pexels-photo-7994432.jpeg") + '" alt="' + s.name + '">' +
-            '<div class="card-body">' +
-              '<div class="card-title-row">' +
-                '<h4 style="font-size:1rem;">' + s.name + '</h4>' +
-                '<span class="status-dot ' + availableClass + '"></span>' +
-              '</div>' +
-              '<p class="small-text">' + s.area + '</p>' +
-              '<div class="card-tags">' +
-                '<span class="tag-pill">' + s.connector + '</span>' +
-                '<span class="tag-pill">' + s.speed + '</span>' +
-                '<span class="tag-pill">' + s.slots_total + ' slots</span>' +
-                '<span class="tag-pill">₹' + s.approx_rate + '/kWh</span>' +
-              '</div>' +
-              '<div class="card-foot">' +
-                '<span class="small-text">' + free + ' free slot(s)</span>' +
-                '<span class="small-text">' + availableText + '</span>' +
-              '</div>' +
-            '</div>';
+    const card = document.createElement("div");
+    card.className = "card";
 
-        // ⭐ when card clicked
-        card.onclick = function() {
-            if (!s.is_available) {
-                alert('This station is marked as NOT AVAILABLE right now.');
-                return;
-            }
-            // 1) select this station in booking dropdown
-            bookingSelect.value = s.id;
+    card.innerHTML = `
+      <img src="${station.image_url}" alt="${station.name}">
+      <div class="card-body">
+        <div class="card-title-row">
+          <h4>${station.name}</h4>
+          <span class="status-dot status-online"></span>
+        </div>
 
-            // 2) smooth scroll to booking section
-            var bookingSection = document.getElementById('booking');
-            bookingSection.scrollIntoView({ behavior: "smooth", block: "start" });
-        };
+        <p class="small-text">${station.area}</p>
 
-        list.appendChild(card);
+        <div class="card-tags">
+          <span class="tag-pill">${station.connector}</span>
+          <span class="tag-pill">${station.speed}</span>
+          <span class="tag-pill">${freeSlots} free slots</span>
+          <span class="tag-pill">₹${station.approx_rate}</span>
+        </div>
 
-        // Fill booking dropdown too
-        var opt = document.createElement('option');
-        opt.value = s.id;
-        opt.textContent = s.name + " (" + s.area + ")";
-        bookingSelect.appendChild(opt);
-    });
+        <div class="card-foot">
+          <span class="small-text">Open now</span>
+          <span class="small-text">Available</span>
+        </div>
+      </div>
+    `;
+
+    list.appendChild(card);
+  });
 }
+
+document.getElementById("locatorBtn").addEventListener("click", function () {
+  const area = document.getElementById("searchArea").value.toLowerCase();
+  const connector = document.getElementById("connectorFilter").value;
+  const speed = document.getElementById("speedFilter").value;
+  const openNow = document.getElementById("openNowFilter").checked;
+
+  const filteredStations = ALL_STATIONS.filter(station => {
+
+    // 1️⃣ Area filter
+    if (area && !station.area.toLowerCase().includes(area)) {
+      return false;
+    }
+
+    // 2️⃣ Connector filter
+    if (connector !== "any" && station.connector !== connector) {
+      return false;
+    }
+
+    // 3️⃣ Speed filter
+    if (speed !== "any" && station.speed !== speed) {
+      return false;
+    }
+
+    // 4️⃣ Open now filter
+    if (openNow && !station.open_now) {
+      return false;
+    }
+
+    return true;
+  });
+
+  renderStations(filteredStations);
+
+  document.getElementById("locatorResult").textContent =
+    `${filteredStations.length} station(s) found`;
+});
+window.addEventListener("DOMContentLoaded", loadStations);
+
 
 // ⭐ 4. SEARCH STATIONS (optional - same style)
 
