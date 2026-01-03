@@ -1,52 +1,99 @@
+/* ===== GLOBAL ===== */
 body {
-  background: #020617;
+  background: linear-gradient(135deg, #020617, #020b2d);
   color: #e5e7eb;
-  font-family: Arial, sans-serif;
+  font-family: "Segoe UI", Arial, sans-serif;
   padding: 20px;
 }
 
-.faq-container {
+/* ===== CONTAINER ===== */
+.help-container {
   max-width: 900px;
   margin: auto;
 }
 
+/* ===== TITLE ===== */
 h1 {
   text-align: center;
   color: #22c55e;
-  margin-bottom: 25px;
+  margin-bottom: 10px;
 }
 
+.subtitle {
+  text-align: center;
+  color: #94a3b8;
+  margin-bottom: 30px;
+  font-size: 0.95rem;
+}
+
+/* ===== FAQ CARD ===== */
 .faq {
-  background: #0f172a;
-  padding: 14px;
-  border-radius: 10px;
-  margin-bottom: 10px;
+  background: rgba(15, 23, 42, 0.85);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
   cursor: pointer;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+
+.faq:hover {
+  background: rgba(30, 41, 59, 0.95);
+}
+
+/* ===== QUESTION ROW ===== */
+.question-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .question {
   font-weight: 600;
+  font-size: 0.95rem;
 }
 
+/* ===== ICON ===== */
+.icon {
+  font-size: 1.3rem;
+  color: #22c55e;
+  transition: transform 0.3s ease;
+}
+
+/* ===== ANSWER ===== */
 .answer {
-  display: none;
-  margin-top: 8px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, opacity 0.3s ease;
+  opacity: 0;
+  margin-top: 0;
   color: #cbd5f5;
   font-size: 0.9rem;
+  line-height: 1.6;
 }
 
-.back-btn {
-  margin-top: 20px;
-  padding: 10px 18px;
-  border-radius: 999px;
-  border: none;
-  background: #22c55e;
-  color: #020617;
-  cursor: pointer;
+/* ===== ACTIVE STATE ===== */
+.faq.active .answer {
+  max-height: 300px;
+  opacity: 1;
+  margin-top: 12px;
 }
 
-/* 📱 MOBILE */
+.faq.active .icon {
+  transform: rotate(180deg);
+}
+
+/* ===== MOBILE ===== */
 @media (max-width: 600px) {
-  h1 { font-size: 1.2rem; }
-  .question { font-size: 0.9rem; }
+  h1 {
+    font-size: 1.3rem;
+  }
+
+  .question {
+    font-size: 0.88rem;
+  }
+
+  .answer {
+    font-size: 0.85rem;
+  }
 }

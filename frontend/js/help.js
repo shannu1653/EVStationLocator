@@ -1,6 +1,16 @@
-document.querySelectorAll(".faq").forEach(item => {
-  item.addEventListener("click", () => {
-    const ans = item.querySelector(".answer");
-    ans.style.display = ans.style.display === "block" ? "none" : "block";
+const faqs = document.querySelectorAll(".faq");
+
+faqs.forEach(faq => {
+  faq.addEventListener("click", () => {
+
+    // Close other FAQs
+    faqs.forEach(item => {
+      if (item !== faq) {
+        item.classList.remove("active");
+      }
+    });
+
+    // Toggle current FAQ
+    faq.classList.toggle("active");
   });
 });
