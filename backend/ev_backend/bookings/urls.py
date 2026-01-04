@@ -6,7 +6,6 @@ from .views import (
 )
 
 urlpatterns = [
-    path("create/", create_booking),
     path("my-bookings/", user_bookings),
     path("cancel/<int:booking_id>/", cancel_booking),
 ]
