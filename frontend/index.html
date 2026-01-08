@@ -1,25 +1,178 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>EV Station Locator</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<title>EV Station Locator</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+<style>
+/* ===== Reset ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+/* ===== Background (FIRST IMAGE SELECTED) ===== */
+body {
+    min-height: 100vh;
+    background:
+        linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.75)),
+        url("./assets/back.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #fff;
+}
+
+/* ===== Navbar (THICK) ===== */
+.nav {
+    padding: 30px 0;
+    backdrop-filter: blur(12px);
+    background: rgba(0, 0, 0, 0.45);
+    box-shadow: 0 0 30px rgba(0,255,255,0.35);
+}
+
+.maincontainer {
+    width: 90%;
+    margin: auto;
+}
+
+.navload {
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #00e5ff;
+    animation: glow 2s infinite alternate;
+}
+
+/* ===== Glow Animation ===== */
+@keyframes glow {
+    from {
+        text-shadow: 0 0 10px #00e5ff;
+    }
+    to {
+        text-shadow: 0 0 30px #00e5ff;
+    }
+}
+
+/* ===== Hero Section ===== */
+.container {
+    margin-top: 140px;
+    animation: fadeUp 1.2s ease;
+}
+
+/* ===== Fade Animation ===== */
+@keyframes fadeUp {
+    0% {
+        opacity: 0;
+        transform: translateY(45px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.container h1 {
+    font-size: 3.2rem;
+    font-weight: 800;
+    margin-bottom: 15px;
+}
+
+.container p {
+    font-size: 1.25rem;
+    color: #d1faff;
+    margin-bottom: 35px;
+}
+
+/* ===== Buttons ===== */
+.loginbtn, .regbtn {
+    text-decoration: none;
+    padding: 14px 34px;
+    margin: 12px;
+    border-radius: 40px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    display: inline-block;
+    transition: 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Login Button */
+.loginbtn {
+    background: linear-gradient(135deg, #00e5ff, #00c853);
+    color: #002b2b;
+}
+
+/* Register Button */
+.regbtn {
+    background: transparent;
+    border: 2px solid #00e5ff;
+    color: #00e5ff;
+}
+
+/* Button Shine Effect */
+.loginbtn::before, .regbtn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.5),
+        transparent
+    );
+    transition: 0.6s;
+}
+
+.loginbtn:hover::before,
+.regbtn:hover::before {
+    left: 100%;
+}
+
+/* Hover Effects */
+.loginbtn:hover {
+    box-shadow: 0 0 30px rgba(0,229,255,0.9);
+    transform: translateY(-4px);
+}
+
+.regbtn:hover {
+    background: rgba(0,229,255,0.18);
+    box-shadow: 0 0 25px rgba(0,229,255,0.9);
+    transform: translateY(-4px);
+}
+
+/* ===== Mobile Responsive ===== */
+@media (max-width: 768px) {
+    .container h1 {
+        font-size: 2.3rem;
+    }
+}
+</style>
 </head>
+
 <body>
 
-<nav class="navbar navbar-dark bg-dark">
-  <div class="container">
-    <span class="navbar-brand">🔌 EV Station Locator</span>
+<nav class="nav">
+  <div class="maincontainer">
+    <span class="navload">🔌 EV Station Locator</span>
   </div>
 </nav>
 
-<div class="container text-center mt-5">
+<div class="container text-center">
   <h1>Find EV Charging Stations Near You</h1>
   <p>Book slots easily and charge smart</p>
-  <a href="login.html" class="btn btn-primary">Login</a>
-  <a href="register.html" class="btn btn-success">Register</a>
+
+  <a href="login.html" class="loginbtn">Login</a>
+  <a href="register.html" class="regbtn">Register</a>
 </div>
 
 </body>
 </html>
-

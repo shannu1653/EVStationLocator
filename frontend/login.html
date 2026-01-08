@@ -1,17 +1,167 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Login</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+<meta charset="UTF-8">
+<title>User Login</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+<style>
+/* ===== Global Reset ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+/* ===== Background ===== */
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at top, #1f2933, #000);
+    overflow: hidden;
+}
+
+/* ===== Floating Gradient Blur ===== */
+body::before {
+    content: "";
+    position: absolute;
+    width: 450px;
+    height: 450px;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    filter: blur(150px);
+    opacity: 0.6;
+}
+
+/* ===== Login Card ===== */
+.login-card {
+    width: 360px;
+    padding: 35px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    box-shadow:
+        0 0 25px rgba(106, 17, 203, 0.6),
+        0 0 45px rgba(37, 117, 252, 0.4);
+    animation: popup 0.9s ease;
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== Card Animation ===== */
+@keyframes popup {
+    0% {
+        transform: scale(0.6) translateY(40px);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ===== Title ===== */
+.login-card h3 {
+    text-align: center;
+    color: #fff;
+    font-weight: 600;
+    margin-bottom: 25px;
+    letter-spacing: 1px;
+}
+
+/* ===== Inputs ===== */
+.login-card input {
+    background: rgba(255, 255, 255, 0.12);
+    border: none;
+    border-radius: 12px;
+    padding: 12px 15px;
+    color: #fff;
+    transition: 0.3s ease;
+}
+
+.login-card input::placeholder {
+    color: #cfd8dc;
+}
+
+.login-card input:focus {
+    outline: none;
+    box-shadow: 0 0 12px rgba(106, 17, 203, 0.9);
+    transform: scale(1.03);
+}
+
+/* ===== Button ===== */
+.loginbtn {
+    width: 100%;
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: 0.4s ease;
+}
+
+/* ===== Button Shine ===== */
+.loginbtn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.4),
+        transparent
+    );
+    transition: 0.6s;
+}
+
+.loginbtn:hover::before {
+    left: 100%;
+}
+
+/* ===== Button Hover ===== */
+.loginbtn:hover {
+    box-shadow:
+        0 0 15px rgba(106, 17, 203, 1),
+        0 0 35px rgba(37, 117, 252, 0.8);
+    transform: translateY(-2px);
+}
+
+.loginbtn:active {
+    transform: scale(0.97);
+}
+</style>
 </head>
-<body class="container mt-5">
 
-<h3>User Login</h3>
+<body>
 
-<input id="username" class="form-control mb-2" placeholder="Username">
-<input id="password" type="password" class="form-control mb-2" placeholder="Password">
+<div class="login-card">
+    <h3>User Login</h3>
 
-<button class="btn btn-primary" onclick="login()">Login</button>
+    <input id="username" class="form-control mb-3" placeholder="Username">
+    <input id="password" type="password" class="form-control mb-3" placeholder="Password">
+
+    <button class="loginbtn" onclick="login()">Login</button>
+</div>
+
+<script>
+function login(){
+    alert("Login Successful ✨");
+}
+
+
+</script>
 
 <script src="js/common.js"></script>
 <script src="js/auth.js"></script>
