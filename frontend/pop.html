@@ -5,248 +5,273 @@
 <title>Nearby EV Charging Stations</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Leaflet Map CSS -->
+<!-- Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
-/* ===== BASIC PAGE STYLES ===== */
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  background: #f4f6f9;
+/* ========== GLOBAL ========== */
+body{
+  margin:0;
+  font-family:"Segoe UI",Arial,sans-serif;
+  background:#f4f6f9;
+  transition:0.3s;
 }
 
-/* Header */
-header {
-  padding: 12px;
-  text-align: center;
-  background: #0a7cff;
-  color: white;
+header{
+  background:linear-gradient(135deg,#0a7cff,#005ad6);
+  color:#fff;
+  padding:18px;
+  text-align:center;
+  font-size:22px;
+  font-weight:600;
 }
 
-/* Top buttons */
-.controls {
-  display: flex;
-  gap: 8px;
-  padding: 10px;
+/* ========== CONTROLS ========== */
+.controls{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+  padding:12px;
 }
 
-button {
-  flex: 1;
-  padding: 8px;
-  border: none;
-  border-radius: 6px;
-  background: #0a7cff;
-  color: white;
-  cursor: pointer;
+select,button{
+  padding:10px 14px;
+  border-radius:12px;
+  border:none;
+  font-size:14px;
 }
 
-/* Map area */
-#map {
-  height: 300px;
+button{
+  background:#0a7cff;
+  color:#fff;
+  cursor:pointer;
+}
+button:hover{background:#005ad6}
+
+/* ========== MAP ========== */
+#map{height:320px}
+
+/* ========== CARDS ========== */
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:16px;
+  padding:16px;
 }
 
-/* Content area */
-.container {
-  padding: 15px;
+.card{
+  background:#fff;
+  border-radius:18px;
+  padding:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.08);
+  animation:fadeUp .6s ease;
 }
 
-/* Station card */
-.station {
-  background: #fff;
-  padding: 12px;
-  border-radius: 10px;
-  margin-bottom: 12px;
-  border-left: 4px solid #ddd;
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
 }
 
-/* Active (selected) station */
-.station.active {
-  border-left-color: #00c853;
-  background: #f4fff8;
+.card.active{
+  border:2px solid #00c853;
+  background:#f3fff7;
 }
 
-/* Directions text */
-.directions {
-  margin-top: 10px;
-  font-size: 14px;
+.card h3{margin:0 0 8px}
+.card p{margin:4px 0;font-size:14px}
+
+.card button{width:100%;margin-top:10px}
+
+/* Badge */
+.badge{
+  display:inline-block;
+  background:#e6f0ff;
+  color:#003c9e;
+  padding:4px 8px;
+  border-radius:8px;
+  font-size:12px;
 }
 
-/* Dark mode */
-body.dark {
-  background: #121212;
-  color: #fff;
+/* Toast */
+.toast{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#0a7cff;
+  color:white;
+  padding:12px 20px;
+  border-radius:20px;
+  animation:toast 3s forwards;
 }
-body.dark header {
-  background: #000;
+
+@keyframes toast{
+  0%{opacity:0}
+  10%{opacity:1}
+  90%{opacity:1}
+  100%{opacity:0}
 }
-body.dark .station {
-  background: #1e1e1e;
-}
+
+/* Dark Mode */
+body.dark{background:#121212;color:#fff}
+body.dark header{background:#000}
+body.dark .card{background:#1e1e1e}
 </style>
 </head>
 
 <body>
 
-<header>
-  <h3>Nearby EV Charging Stations</h3>
-</header>
+<header>Nearby EV Charging Stations</header>
 
-<!-- Control buttons -->
 <div class="controls">
-  <button onclick="toggleDarkMode()">🌙 Dark Mode</button>
-  <button onclick="sortByDistance()">📊 Sort by Distance</button>
+  <select id="travelMode">
+    <option value="driving">🚗 Driving</option>
+    <option value="walking">🚶 Walking</option>
+    <option value="bicycling">🚲 Cycling</option>
+  </select>
+
+  <button onclick="sortNearest()">📊 Sort Nearest</button>
+  <button onclick="toggleDark()">🌙 Dark Mode</button>
 </div>
 
-<!-- Map -->
 <div id="map"></div>
+<div class="cards" id="stationList"></div>
 
-<!-- Station list -->
-<div class="container">
-  <div id="stationList"></div>
-</div>
-
-<!-- Leaflet Map JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-/* ===== GLOBAL VARIABLES ===== */
-let map;
-let userLat, userLng;
-let routeLayer;
+/* ========== GLOBAL VARIABLES ========== */
+let map,userLat,userLng;
 
-/* ===== SAMPLE EV STATIONS (HYDERABAD) ===== */
-const stations = [
-  { name: "Tata Power EV – Banjara Hills", lat: 17.4123, lng: 78.4484, area: "Banjara Hills", distance: 2.1 },
-  { name: "Ather Grid – Gachibowli", lat: 17.4401, lng: 78.3489, area: "Gachibowli", distance: 3.6 },
-  { name: "ChargeZone – Kukatpally", lat: 17.4948, lng: 78.3996, area: "Kukatpally", distance: 4.9 }
+/* ========== DEMO REAL STATIONS ========== */
+const stations=[
+  {name:"ChargeZone – Kukatpally",lat:17.4933,lng:78.3996,power:"50 kW"},
+  {name:"Jio BP Pulse – Madhapur",lat:17.4483,lng:78.3915,power:"60 kW"},
+  {name:"Ather Grid – Gachibowli",lat:17.4401,lng:78.3489,power:"25 kW"},
+  {name:"Tata Power EV – Banjara Hills",lat:17.4123,lng:78.4484,power:"30 kW"}
 ];
 
-const stationList = document.getElementById("stationList");
-
-/* ===== GET USER LOCATION ===== */
+/* ========== USER LOCATION ========== */
 navigator.geolocation.getCurrentPosition(
-  position => {
-    userLat = position.coords.latitude;
-    userLng = position.coords.longitude;
-    initMap(userLat, userLng);
+  pos=>{
+    userLat=pos.coords.latitude;
+    userLng=pos.coords.longitude;
+    initMap();
     renderStations();
   },
-  () => {
-    // If user denies location
-    userLat = 17.3850;
-    userLng = 78.4867;
-    initMap(userLat, userLng);
+  ()=>{
+    userLat=17.3850;
+    userLng=78.4867;
+    initMap();
     renderStations();
   }
 );
 
-/* ===== INITIALIZE MAP ===== */
-function initMap(lat, lng) {
-  map = L.map("map").setView([lat, lng], 12);
+/* ========== MAP ========== */
+function initMap(){
+  map=L.map("map").setView([userLat,userLng],13);
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "© OpenStreetMap"
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
+    attribution:"© OpenStreetMap"
   }).addTo(map);
 
-  // User marker
-  L.marker([lat, lng]).addTo(map)
-    .bindPopup("You are here")
-    .openPopup();
+  L.marker([userLat,userLng]).addTo(map)
+    .bindPopup("You are here").openPopup();
 
-  // Station markers
-  stations.forEach(s => {
-    L.marker([s.lat, s.lng]).addTo(map)
-      .bindPopup(s.name);
+  stations.forEach(s=>{
+    L.marker([s.lat,s.lng]).addTo(map).bindPopup(s.name);
   });
 }
 
-/* ===== SHOW STATION LIST ===== */
-function renderStations() {
-  stationList.innerHTML = "";
+/* ========== DISTANCE (HAVERSINE) ========== */
+function distance(lat1,lon1,lat2,lon2){
+  const R=6371;
+  const dLat=(lat2-lat1)*Math.PI/180;
+  const dLon=(lon2-lon1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+
+    Math.cos(lat1*Math.PI/180)*
+    Math.cos(lat2*Math.PI/180)*
+    Math.sin(dLon/2)**2;
+  return (R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))).toFixed(2);
+}
 
-  stations.forEach((s, index) => {
-    stationList.innerHTML += `
-      <div class="station" id="station-${index}">
-        <b>${s.name}</b>
-        <p>Area: ${s.area}</p>
-        <p>Distance: ${s.distance} km</p>
+/* ========== RENDER STATIONS ========== */
+function renderStations(){
+  const list=document.getElementById("stationList");
+  list.innerHTML="";
 
-        <button onclick="getDirections(${index})">
-          Get Directions
+  stations.forEach((s,i)=>{
+    const d=distance(userLat,userLng,s.lat,s.lng);
+    s.dist=d;
+
+    list.innerHTML+=`
+      <div class="card">
+        <h3>${s.name}</h3>
+        <p>📏 Distance: ${d} km</p>
+        <p><span class="badge">⚡ ${s.power}</span></p>
+
+        <button onclick="openMaps(${s.lat},${s.lng},'${s.name}')">
+          🧭 Get Directions
         </button>
 
-        <div class="directions"></div>
+        <button onclick="saveFav('${s.name}')">
+          ❤️ Save
+        </button>
       </div>
     `;
   });
 }
 
-/* ===== SORT BY DISTANCE ===== */
-function sortByDistance() {
-  stations.sort((a, b) => a.distance - b.distance);
+/* ========== SORT NEAREST ========== */
+function sortNearest(){
+  stations.sort((a,b)=>a.dist-b.dist);
   renderStations();
 }
 
-/* ===== GET DIRECTIONS ===== */
-function getDirections(index) {
-  const station = stations[index];
+/* ========== GOOGLE MAPS NAVIGATION ========== */
+function openMaps(lat,lng,name){
+  showToast("Opening Google Maps…");
 
-  // Highlight selected station
-  document.querySelectorAll(".station").forEach(el => el.classList.remove("active"));
-  document.getElementById(`station-${index}`).classList.add("active");
+  const mode=document.getElementById("travelMode").value;
+  const url=`https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLng}&destination=${lat},${lng}&travelmode=${mode}`;
 
-  // Remove old route
-  if (routeLayer) {
-    map.removeLayer(routeLayer);
+  const isMobile=/Android|iPhone|iPad/i.test(navigator.userAgent);
+
+  if(isMobile){
+    window.location.href=url;
+  }else{
+    window.open(url,"_blank");
   }
-
-  // OSRM routing API (free)
-  const url = `https://router.project-osrm.org/route/v1/driving/${userLng},${userLat};${station.lng},${station.lat}?overview=full&geometries=geojson`;
-
-  fetch(url)
-    .then(res => res.json())
-    .then(data => {
-      const route = data.routes[0];
-
-      // Draw route line
-      routeLayer = L.geoJSON(route.geometry, {
-        style: { color: "#0a7cff", weight: 5 }
-      }).addTo(map);
-
-      map.fitBounds(routeLayer.getBounds());
-
-      // Show ETA and distance
-      const km = (route.distance / 1000).toFixed(2);
-      const min = Math.ceil(route.duration / 60);
-
-      document.querySelector(`#station-${index} .directions`).innerHTML = `
-        <b>ETA:</b> ${min} min<br>
-        <b>Distance:</b> ${km} km<br><br>
-
-        <button onclick="openGoogleMaps(${station.lat}, ${station.lng})">
-          🧭 Open in Google Maps
-        </button>
-      `;
-    });
 }
 
-/* ===== OPEN GOOGLE MAPS ===== */
-function openGoogleMaps(lat, lng) {
-  window.open(
-    `https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLng}&destination=${lat},${lng}`,
-    "_blank"
-  );
+/* ========== FAVORITES ========== */
+function saveFav(name){
+  let fav=JSON.parse(localStorage.getItem("fav"))||[];
+  if(!fav.includes(name)){
+    fav.push(name);
+    showToast("Added to favorites");
+  }else{
+    showToast("Already saved");
+  }
+  localStorage.setItem("fav",JSON.stringify(fav));
 }
 
-/* ===== DARK MODE ===== */
-function toggleDarkMode() {
+/* ========== TOAST ========== */
+function showToast(msg){
+  const t=document.createElement("div");
+  t.className="toast";
+  t.innerText=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+}
+
+/* ========== DARK MODE ========== */
+function toggleDark(){
   document.body.classList.toggle("dark");
-  localStorage.setItem("dark", document.body.classList.contains("dark"));
+  localStorage.setItem("dark",document.body.classList.contains("dark"));
 }
-
-// Restore dark mode
-if (localStorage.getItem("dark") === "true") {
+if(localStorage.getItem("dark")==="true"){
   document.body.classList.add("dark");
 }
 </script>
